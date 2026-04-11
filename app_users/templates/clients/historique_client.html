@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Livreur - Mes Commandes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Gauche : flèche retour + logo -->
+                <div class="flex items-center space-x-3">
+                    <!-- Flèche retour -->
+                    <a href="{% url 'index' %}" class="flex items-center justify-center w-9 h-9 rounded-xl hover:bg-gray-100 active:scale-95 transition-all duration-150 text-gray-500 hover:text-gray-800">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+
+                    <!-- Logo -->
+                    <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Flash Livreur</h1>
+                        <p class="text-xs text-gray-500">Mes courses</p>
+                    </div>
+                </div>
+
+                <!-- Bouton Nouvelle course -->
+                <a href="{% url 'lancer_course' %}" class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 active:scale-95 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all duration-150">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Nouvelle course</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Overview — gris sombre moderne -->
+    <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">12</div>
+                    <div class="text-xs text-gray-400 mt-1">Activités ce mois</div>
+                </div>
+                <div class="bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">124</div>
+                    <div class="text-xs text-gray-400 mt-1">Activités cette année</div>
+                </div>
+                <div class="bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">247</div>
+                    <div class="text-xs text-gray-400 mt-1">Total</div>
+                </div>
+                <div class="bg-white/5 border border-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">1 840</div>
+                    <div class="text-xs text-gray-400 mt-1">Actions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+            <!-- Sidebar Filtres -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">Filtres</h3>
+
+                    <div class="space-y-3 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700">Période</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm">
+                            <option>Cette semaine</option>
+                            <option selected>Ce mois</option>
+                            <option>3 derniers mois</option>
+                            <option>Cette année</option>
+                            <option>Toutes</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700">Statut</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">Toutes</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">✅ Livrées</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">🚚 En cours</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">⏳ En attente</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">❌ Annulées</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste des courses -->
+            <div class="lg:col-span-3 space-y-6">
+
+ {% for course in courses_actives %}
+
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+
+    <!-- ─── EN-TÊTE avec statut dynamique ─── -->
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-900">Course #{{ course.numero_course }}</h3>
+
+        {% if course.etat == 'attente' %}
+            <span class="flex items-center gap-2 text-amber-600 text-sm font-medium bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                <span class="w-2 h-2 bg-amber-400 rounded-full pulse-dot"></span>
+                En attente
+            </span>
+        {% elif course.etat == 'enroute' %}
+            <span class="flex items-center gap-2 text-blue-600 text-sm font-medium bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
+                <span class="w-2 h-2 bg-blue-400 rounded-full pulse-dot"></span>
+                En route
+            </span>
+        {% elif course.etat == 'encours' %}
+            <span class="flex items-center gap-2 text-indigo-600 text-sm font-medium bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+                <span class="w-2 h-2 bg-indigo-400 rounded-full pulse-dot"></span>
+                En cours
+            </span>
+        {% elif course.etat == 'livre' %}
+            <span class="flex items-center gap-2 text-green-600 text-sm font-medium bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+                <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                Livrée
+            </span>
+        {% elif course.etat == 'annule' %}
+            <span class="flex items-center gap-2 text-red-600 text-sm font-medium bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+                <span class="w-2 h-2 bg-red-400 rounded-full"></span>
+                Annulée
+            </span>
+        {% endif %}
+    </div>
+
+    <!-- ─── CORPS ─── -->
+    <div class="p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+            <!-- Infos course -->
+            <div class="flex items-start gap-4">
+                <!-- Icône dynamique selon l'état -->
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0
+                    {% if course.etat == 'attente' %}bg-amber-50 border border-amber-200
+                    {% elif course.etat == 'enroute' %}bg-blue-50 border border-blue-200
+                    {% elif course.etat == 'encours' %}bg-indigo-50 border border-indigo-200
+                    {% elif course.etat == 'livre' %}bg-green-50 border border-green-200
+                    {% elif course.etat == 'annule' %}bg-red-50 border border-red-200
+                    {% endif %}">
+                    {% if course.etat == 'livre' %}
+                        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    {% elif course.etat == 'annule' %}
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    {% elif course.etat == 'enroute' or course.etat == 'encours' %}
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l2.414 2.414A1 1 0 0120 10.414V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                        </svg>
+                    {% else %}
+                        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <p class="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Course #{{ course.numero_course }}</p>
+                    <p class="text-sm text-gray-700 font-semibold mb-3">{{ course.date_creation|date:"l d F Y" }}</p>
+
+                    <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>~35 min estimées</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>{{ course.lieu_depart }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prix + bouton -->
+            <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 sm:text-right">
+                <div>
+                    <p class="text-2xl font-bold text-gray-900">{{ course.prix }} <span class="text-base font-semibold text-gray-500">FCFA</span></p>
+                </div>
+                <a href="{% url 'detail_course_client' course.id %}"
+                   class="inline-flex items-center gap-2 text-white text-sm font-medium px-5 py-2.5 rounded-xl transition-colors whitespace-nowrap
+                       {% if course.etat == 'annule' %}bg-red-600 hover:bg-red-500
+                       {% elif course.etat == 'livre' %}bg-green-700 hover:bg-green-600
+                       {% else %}bg-gray-900 hover:bg-gray-700{% endif %}">
+                    Voir les détails
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% empty %}
+    <p class="text-center text-gray-400 py-12">Vous n'avez encore aucune course.</p>
+{% endfor %}
+
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+
+                    <!-- En-tête -->
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <h3 class="text-lg font-bold text-gray-900">Historique des courses</h3>
+
+                            <!-- Filtres période + recherche -->
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <button onclick="filterHistory(this,'day')"
+                                    class="filter-btn text-sm px-3 py-1.5 rounded-lg font-medium bg-gray-900 text-white transition">
+                                    Aujourd'hui
+                                </button>
+                                <button onclick="filterHistory(this,'week')"
+                                    class="filter-btn text-sm px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                                    Semaine
+                                </button>
+                                <button onclick="filterHistory(this,'month')"
+                                    class="filter-btn text-sm px-3 py-1.5 rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                                    Mois
+                                </button>
+                                <div class="relative">
+                                    <input type="text" id="searchHistory" oninput="searchRows(this.value)"
+                                        placeholder="Rechercher…"
+                                        class="pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-400 focus:border-gray-400 outline-none w-36 bg-white">
+                                    <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Onglets Livrées / Annulées -->
+                        <div class="flex items-center gap-1 mt-4 border-b border-gray-200 -mb-4">
+                            <button onclick="switchTab('livrees')" id="tab-livrees"
+                                class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-green-600 text-green-700 -mb-px transition">
+                                ✅ Livrées
+                                <span class="ml-1.5 text-xs bg-green-100 text-green-700 border border-green-200 px-1.5 py-0.5 rounded-full" id="count-livrees">0</span>
+                            </button>
+                            <button onclick="switchTab('annulees')" id="tab-annulees"
+                                class="tab-btn px-4 py-2.5 text-sm font-semibold border-b-2 border-transparent text-gray-400 hover:text-gray-600 -mb-px transition">
+                                ❌ Annulées
+                                <span class="ml-1.5 text-xs bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded-full" id="count-annulees">0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ── Panneau LIVRÉES ── -->
+                    <div id="panel-livrees" class="divide-y divide-gray-100">
+
+                        {% for course in courses_livrees %}
+                        {% if course.etat == 'livre' %}
+                        <div class="history-row px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-gray-50 transition"
+                            data-nom="{{ course.livreur.get_full_name}}"
+                            data-adresse="{{ course.lieu_depart }}">
+
+                            <!-- Icône + infos -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-11 h-11 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-mono mb-0.5">#{{ course.numero_course }} · {{ course.date_creation|date:"H:i" }}</p>
+                                    <p class="text-base font-semibold text-gray-800">{{ course.nom_destinataire }}</p>
+                                    <p class="text-sm text-gray-400">{{ course.lieu_depart }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Statut + prix + lien -->
+                            <div class="flex items-center gap-4 sm:text-right">
+                                <span class="text-sm font-semibold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full whitespace-nowrap">
+                                    Livrée ✓
+                                </span>
+                                <p class="text-lg font-bold text-gray-900 whitespace-nowrap">
+                                    {{ course.prix }} <span class="text-sm font-medium text-gray-400">FCFA</span>
+                                </p>
+                                <a href="{% url 'detail_course_client' course.id %}"
+                                class="inline-flex items-center gap-1 text-sm font-medium text-green-700 hover:text-green-900 transition whitespace-nowrap">
+                                    Détails
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% empty %}
+                        {% endfor %}
+
+                        <!-- Message vide livrées -->
+                        <div id="empty-livrees" class="hidden px-6 py-12 text-center text-gray-400 text-sm">
+                            Aucune course livrée trouvée.
+                        </div>
+                    </div>
+
+                    <!-- ── Panneau ANNULÉES ── -->
+                    <div id="panel-annulees" class="divide-y divide-gray-100 hidden">
+
+                        {% for course in courses_annulees  %}
+                        {% if course.etat == 'annule' %}
+                        <div class="history-row-cancel px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-red-50/30 transition"
+                            data-nom="{{ course.nature_colis}}"
+                            data-adresse="{{ course.lieu_depart }}">
+
+                            <!-- Icône + infos -->
+                            <div class="flex items-center gap-4">
+                                <div class="w-11 h-11 bg-red-50 border border-red-200 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 font-mono mb-0.5">#{{ course.numero_course }} · {{ course.date_creation|date:"H:i" }}</p>
+                                    <p class="text-base font-semibold text-gray-700">{{ course.nom_destinataire }}</p>
+                                    <p class="text-sm text-gray-400">{{ course.lieu_depart }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Statut + prix + lien -->
+                            <div class="flex items-center gap-4 sm:text-right">
+                                <span class="text-sm font-semibold text-red-600 bg-red-50 border border-red-200 px-2.5 py-1 rounded-full whitespace-nowrap">
+                                    Annulée ✕
+                                </span>
+                                <p class="text-lg font-bold text-gray-400 line-through whitespace-nowrap">
+                                    {{ course.prix }} <span class="text-sm font-medium text-gray-400">FCFA</span>
+                                </p>
+                                <a href="{% url 'detail_course_client' course.id %}"
+                                class="inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition whitespace-nowrap">
+                                    Détails
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% empty %}
+                        {% endfor %}
+
+                        <!-- Message vide annulées -->
+                        <div id="empty-annulees" class="hidden px-6 py-12 text-center text-gray-400 text-sm">
+                            Aucune course annulée trouvée.
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="px-6 py-4 border-t border-gray-100 text-center">
+                        <a href="{% url 'historique_course_client' %}" class="text-sm text-gray-500 hover:text-gray-800 font-medium transition">
+                            Voir tout l'historique →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+<script>
+    // ── Compter et afficher les badges au chargement ──
+    document.addEventListener('DOMContentLoaded', function () {
+        const livrees  = document.querySelectorAll('#panel-livrees .history-row').length;
+        const annulees = document.querySelectorAll('#panel-annulees .history-row-cancel').length;
+        document.getElementById('count-livrees').textContent  = livrees;
+        document.getElementById('count-annulees').textContent = annulees;
+        checkEmpty();
+    });
+
+    // ── Switcher d'onglets ──
+    function switchTab(tab) {
+        const panelL  = document.getElementById('panel-livrees');
+        const panelA  = document.getElementById('panel-annulees');
+        const tabL    = document.getElementById('tab-livrees');
+        const tabA    = document.getElementById('tab-annulees');
+
+        if (tab === 'livrees') {
+            panelL.classList.remove('hidden');
+            panelA.classList.add('hidden');
+            tabL.classList.add('border-green-600','text-green-700');
+            tabL.classList.remove('border-transparent','text-gray-400');
+            tabA.classList.add('border-transparent','text-gray-400');
+            tabA.classList.remove('border-red-500','text-red-600');
+        } else {
+            panelA.classList.remove('hidden');
+            panelL.classList.add('hidden');
+            tabA.classList.add('border-red-500','text-red-600');
+            tabA.classList.remove('border-transparent','text-gray-400');
+            tabL.classList.add('border-transparent','text-gray-400');
+            tabL.classList.remove('border-green-600','text-green-700');
+        }
+    }
+
+    // ── Filtre période (à brancher sur ta logique backend/Django si besoin) ──
+    function filterHistory(btn, period) {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('bg-gray-900','text-white');
+            b.classList.add('bg-gray-100','text-gray-600');
+        });
+        btn.classList.add('bg-gray-900','text-white');
+        btn.classList.remove('bg-gray-100','text-gray-600');
+        // Ajouter la logique de filtre ici
+    }
+
+    // ── Recherche en temps réel ──
+    function searchRows(query) {
+        const q = query.toLowerCase();
+        // Livrées
+        document.querySelectorAll('#panel-livrees .history-row').forEach(row => {
+            const nom     = (row.dataset.nom     || '').toLowerCase();
+            const adresse = (row.dataset.adresse || '').toLowerCase();
+            row.style.display = (nom.includes(q) || adresse.includes(q)) ? '' : 'none';
+        });
+        // Annulées
+        document.querySelectorAll('#panel-annulees .history-row-cancel').forEach(row => {
+            const nom     = (row.dataset.nom     || '').toLowerCase();
+            const adresse = (row.dataset.adresse || '').toLowerCase();
+            row.style.display = (nom.includes(q) || adresse.includes(q)) ? '' : 'none';
+        });
+        checkEmpty();
+    }
+
+    // ── Afficher message si aucun résultat ──
+    function checkEmpty() {
+        const livreesVisible  = [...document.querySelectorAll('#panel-livrees .history-row')].some(r => r.style.display !== 'none');
+        const annuleesVisible = [...document.querySelectorAll('#panel-annulees .history-row-cancel')].some(r => r.style.display !== 'none');
+        document.getElementById('empty-livrees').classList.toggle('hidden', livreesVisible);
+        document.getElementById('empty-annulees').classList.toggle('hidden', annuleesVisible);
+    }
+</script>
+
+</body>
+</html>

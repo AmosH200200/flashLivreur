@@ -1,0 +1,167 @@
+
+ <!-- Modal Photo de Profil -->
+<div id="photoModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50">
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-80 mx-4">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Photo de profil</h3>
+        
+        <!-- Preview -->
+        <div class="flex justify-center mb-4">
+            <div id="photoPreview" class="w-24 h-24 rounded-full overflow-hidden bg-zinc-100 flex items-center justify-center">
+                <span class="text-zinc-400 text-sm text-center">Aperçu</span>
+            </div>
+        </div>
+
+        <!-- Input fichier caché -->
+        <input type="file" id="photoInput" accept="image/*" class="hidden">
+
+        <div class="flex flex-col gap-2">
+            <button onclick="document.getElementById('photoInput').click()"
+                class="w-full py-2 px-4 bg-zinc-900 text-white rounded-lg hover:bg-zinc-700 transition text-sm font-medium">
+                📷 Choisir une photo
+            </button>
+            <button id="photoSaveBtn" onclick="savePhoto()" disabled
+                class="w-full py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-500 transition text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed">
+                ✓ Enregistrer
+            </button>
+            <button id="photoDeleteBtn" onclick="deletePhoto()"
+                class="w-full py-2 px-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition text-sm font-medium">
+                🗑 Supprimer la photo
+            </button>
+            <button onclick="closePhotoModal()"
+                class="w-full py-2 px-4 text-gray-500 hover:text-gray-700 text-sm">
+                Annuler
+            </button>
+        </div>
+
+        <p id="photoError" class="text-red-500 text-xs mt-2 hidden"></p>
+    </div>
+</div>
+
+<script>
+
+let currentTargetUserId = null;
+
+function openPhotoModal(user_id = null ) { // ,hasPhoto = false
+    currentTargetUserId = user_id;
+   
+    document.getElementById('photoModal').classList.remove('hidden');
+    document.getElementById('photoModal').classList.add('flex');
+    document.getElementById('photoError').classList.add('hidden');
+    document.getElementById('photoSaveBtn').disabled = true;
+
+    // Masquer "Supprimer" si pas de photo
+    document.getElementById('photoDeleteBtn').style.display = hasPhoto ? 'block' : 'none';
+}
+
+function closePhotoModal() {
+    document.getElementById('photoModal').classList.add('hidden');
+    document.getElementById('photoModal').classList.remove('flex');
+    document.getElementById('photoInput').value = '';
+    currentTargetUserId = null;
+}
+
+// Aperçu à la sélection
+document.getElementById('photoInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+        showPhotoError('Fichier trop volumineux (max 5MB)');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('photoPreview').innerHTML =
+            `<img src="${e.target.result}" class="w-full h-full object-cover">`;
+        document.getElementById('photoSaveBtn').disabled = false;
+    };
+    reader.readAsDataURL(file);
+});
+
+function savePhoto() {
+    const file = document.getElementById('photoInput').files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('action', 'update');
+    formData.append('csrfmiddlewaretoken', getCsrf());
+    const url = currentTargetUserId
+        ? `/profil/photo/${currentTargetUserId}/`
+        : `/profil/photo/`;
+
+
+    fetch(url, { 
+        method: 'POST', 
+        body: formData,    
+        headers: {'X-CSRFToken': getCsrf()}
+    })
+        .then(async r => {
+        const data = await r.json();
+        if (!r.ok) throw data;
+        return data;
+        })
+        .then(data => {
+            if (data.success) {
+                updateAllAvatars(data.photo_url);
+                closePhotoModal();
+            } else {
+                showPhotoError(data.error);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showPhotoError(err.error || "Erreur inconnue");
+        });
+}
+
+function deletePhoto() {
+    if (!confirm('Supprimer la photo de profil ?')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('csrfmiddlewaretoken', getCsrf());
+
+    const url = currentTargetUserId
+        ? `/profil/photo/${currentTargetUserId}/`
+        : `/profil/photo/`;
+
+    fetch(url, { 
+        method: 'POST', 
+        body: formData, 
+        headers: {'X-CSRFToken': getCsrf()}
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                updateAllAvatars(null);
+                closePhotoModal();
+            }
+        });
+}
+
+function updateAllAvatars(photoUrl) {
+    // Met à jour tous les avatars affichés sur la page
+    document.querySelectorAll('[data-avatar]').forEach(el => {
+        if (photoUrl) {
+            el.innerHTML = `<img src="${photoUrl}" class="w-full h-full object-cover">`;
+        } else {
+            const initiales = el.dataset.initiales || '?';
+            el.innerHTML = `<span>${initiales}</span>`;
+        }
+    });
+}
+
+function showPhotoError(msg) {
+    const el = document.getElementById('photoError');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+}
+
+function getCsrf() {
+    return document.cookie.split('; ')
+        .find(r => r.startsWith('csrftoken='))
+        ?.split('=')[1] || '';
+}
+</script>

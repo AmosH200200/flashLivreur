@@ -1,0 +1,467 @@
+{% extends 'admin_supers/base_dashboard.html' %}
+ {% block content %}
+
+<div class="ml-0 lg:ml-64 mt-16 p-6">
+  <!-- En-tête avec bouton retour -->
+  <div class="mb-6">
+    <a
+      href="{% url 'gestion_client' %}"
+      class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+    >
+      <i class="fas fa-arrow-left mr-2"></i>
+      <span>Retour à la liste des clients</span>
+    </a>
+    <h2 class="text-3xl font-bold text-gray-800">Détails du client</h2>
+  </div>
+
+  <!-- Carte d'informations principales -->
+  <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+      
+      <!-- Photo de profil -->
+      <div class="flex-shrink-0 relative inline-block">
+        {% if client.photo %}
+        <img
+          src="{{ client.photo.url }}"
+          class="w-32 h-32 rounded-full mr-3 object-cover"
+        />
+        {% else %}
+        <img
+          src="https://ui-avatars.com/api/?name={{ client.last_name }}+{{ client.first_name }}&background=0D8ABC&color=fff&size=128"
+          alt="Photo de profil"
+          class="w-32 h-32 rounded-full border-4 border-blue-100"
+        />
+        {% endif %}
+
+        <!-- Bouton édition -->
+        <button
+          onclick=" openPhotoModal({{ client.id }})"
+          class="absolute bottom-1 right-3 w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md transition"
+        >
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Informations personnelles -->
+      <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div>
+          <label class="text-sm text-gray-500 font-medium">ID Client</label>
+          <p class="text-gray-800 font-semibold">{{ client.id }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Statut</label>
+          <p>
+                {% if client.is_active %}
+                  <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">Actif</span>
+                 {% else %}
+                  <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">Inactif</span>
+                {% endif %}
+          </p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Nom</label>
+          <p class="text-gray-800 font-semibold">{{ client.last_name }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Prénom</label>
+          <p class="text-gray-800 font-semibold">{{ client.first_name }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Email</label>
+          <p class="text-gray-800">{{ client.email }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Téléphone</label>
+          <p class="text-gray-800">{{ client.telephone }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Rôle</label>
+          <p class="text-gray-800">Client</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Membre depuis</label>
+          <p class="text-gray-800">{{client.date_joined|date:"d/m/y"}}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex-shrink-0 flex flex-col gap-3">
+        <button type="button"
+                class="edit-user-btn px-4 py-2 bg-blue-600 text-white rounded"
+                data-id="{{ client.id }}"
+                data-nom="{{ client.last_name }}"
+                data-prenom="{{ client.first_name }}"
+                data-email="{{ client.email }}"
+                data-telephone="{{ client.telephone }}"
+                data-role="client"
+                data-statut="{% if client.is_active %}actif{% else %}inactif{% endif %}">
+            <i class="fas fa-edit"></i> Modifier
+        </button>
+
+        {% if client.is_active %}
+        <a
+          data-client-id="{{ client.id }}"
+          onclick="confirmDesactivate({{ client.id }}, 'client')"
+          class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center justify-center gap-2"
+          title="Bloquer"
+        >
+          <i class="fas fa-ban"></i>
+          <span>Bloquer</span>
+        </a>
+        {% else %}
+        <a
+          href="{% url 'activate_client' client.id %}"
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition flex items-center justify-center gap-2"
+          title="Débloquer"
+        >
+          <i class="fas fa-check-circle"></i>
+          <span>Débloquer</span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% include 'partials/modal.html' %}
+
+  <!-- Statistiques rapides -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <div
+      class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md p-6 text-white"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-blue-100 text-sm">Courses lancées</p>
+          <p class="text-3xl font-bold mt-2">24</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-shipping-fast text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-md p-6 text-white"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-red-100 text-sm">Courses annulées</p>
+          <p class="text-3xl font-bold mt-2">3</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-times-circle text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-md p-6 text-white"
+    >
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-green-100 text-sm">Courses reçues</p>
+          <p class="text-3xl font-bold mt-2">21</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-check-circle text-3xl"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <!-- En-tête des onglets -->
+    <div class="border-b border-gray-200">
+      <nav class="flex">
+        <button
+          onclick="switchTab('courses')"
+          id="tab-courses"
+          class="tab-button active px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600"
+        >
+          <i class="fas fa-box mr-2"></i>Historique des courses
+        </button>
+        <button
+          onclick="switchTab('modifications')"
+          id="tab-modifications"
+          class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        >
+          <i class="fas fa-history mr-2"></i>Modifications du profil
+        </button>
+      </nav>
+    </div>
+
+    <!-- Contenu des onglets -->
+    <div class="p-6">
+      <!-- Onglet Courses -->
+      <div id="content-courses" class="tab-content">
+        <!-- Filtres -->
+        <div class="mb-4 flex flex-wrap gap-2">
+          <button
+            onclick="filterCourses('all')"
+            class="filter-btn active px-4 py-2 rounded-lg bg-blue-500 text-white text-sm"
+          >
+            Toutes (24)
+          </button>
+          <button
+            onclick="filterCourses('lancee')"
+            class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            Lancées (24)
+          </button>
+          <button
+            onclick="filterCourses('annulee')"
+            class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            Annulées (3)
+          </button>
+          <button
+            onclick="filterCourses('recue')"
+            class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            Reçues (21)
+          </button>
+        </div>
+
+        <!-- Liste des courses -->
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+          <!-- Course 1 -->
+          <div
+            class="course-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+            data-status="recue"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#C001</span>
+                  <span
+                    class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800"
+                  >
+                    Reçue
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i
+                    ><strong>De:</strong> Cotonou, Akpakpa
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i
+                    ><strong>À:</strong> Porto-Novo, Centre-ville
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>28/01/2026 à 14:30</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">2500 FCFA</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course 2 -->
+          <div
+            class="course-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+            data-status="lancee"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#C002</span>
+                  <span
+                    class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    Lancée
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i
+                    ><strong>De:</strong> Cotonou, Fidjrossè
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i
+                    ><strong>À:</strong> Abomey-Calavi
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>29/01/2026 à 09:15</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">1800 FCFA</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course 3 -->
+          <div
+            class="course-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+            data-status="annulee"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#C003</span>
+                  <span
+                    class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800"
+                  >
+                    Annulée
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i
+                    ><strong>De:</strong> Cotonou, Cadjéhoun
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i
+                    ><strong>À:</strong> Ouidah
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>27/01/2026 à 16:45</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">3200 FCFA</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course 4 -->
+          <div
+            class="course-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+            data-status="recue"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#C004</span>
+                  <span
+                    class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800"
+                  >
+                    Reçue
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i
+                    ><strong>De:</strong> Cotonou, Dantokpa
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i
+                    ><strong>À:</strong> Godomey
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>26/01/2026 à 11:20</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">1500 FCFA</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course 5 -->
+          <div
+            class="course-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition"
+            data-status="recue"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#C005</span>
+                  <span
+                    class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800"
+                  >
+                    Reçue
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i
+                    ><strong>De:</strong> Cotonou, Haie Vive
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i
+                    ><strong>À:</strong> Cotonou, Jéricho
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>25/01/2026 à 08:00</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">1200 FCFA</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglet Modifications -->
+      <div id="content-modifications" class="tab-content hidden">
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+          <!-- Modification 1 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Numéro de téléphone</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">+229 96 00 00 00</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">+229 97 00 00 00</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">20/01/2026 14:30</span>
+            </div>
+          </div>
+
+          <!-- Modification 2 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Email</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">j.dupont@email.com</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">jean.dupont@email.com</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">18/01/2026 10:15</span>
+            </div>
+          </div>
+
+          <!-- Modification 3 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Statut</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">Inactif</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">Actif</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">16/01/2026 09:00</span>
+            </div>
+          </div>
+
+          <!-- Modification 4 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Prénom</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">John</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">Jean</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">15/01/2026 16:45</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+{% include 'partials/modal_delete.html'%} 
+{% endblock %}

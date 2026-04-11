@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Livreur — Détails de la course</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <a href="{% url 'historique_client' %}" class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Retour
+            </a>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <span class="font-bold text-gray-900">Flash Livreur</span>
+            </div>
+            <!-- Spacer pour centrer le logo -->
+            <div class="w-16"></div>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-5">      
+
+<!-- Titre + statut -->
+<div class="flex items-start justify-between">
+    <div>
+        <p class="text-xs text-gray-400 font-medium uppercase tracking-widest mb-1">Course: #{{ course.numero_course }}</p>
+        <h1 class="text-2xl font-bold text-gray-900">Détails de la course</h1>
+    </div>
+
+    {% if course.etat == 'attente' %}
+        <span class="flex items-center gap-2 text-amber-600 text-sm font-semibold bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full mt-1">
+            <span class="w-2 h-2 bg-amber-400 rounded-full pulse-dot"></span>
+            En attente
+        </span>
+    {% elif course.etat == 'enroute' %}
+        <span class="flex items-center gap-2 text-blue-600 text-sm font-semibold bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-full mt-1">
+            <span class="w-2 h-2 bg-blue-400 rounded-full pulse-dot"></span>
+            En route
+        </span>
+    {% elif course.etat == 'encours' %}
+        <span class="flex items-center gap-2 text-indigo-600 text-sm font-semibold bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-full mt-1">
+            <span class="w-2 h-2 bg-indigo-400 rounded-full pulse-dot"></span>
+            En cours
+        </span>
+    {% elif course.etat == 'livre' %}
+        <span class="flex items-center gap-2 text-green-600 text-sm font-semibold bg-green-50 border border-green-200 px-3 py-1.5 rounded-full mt-1">
+            <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+            Livrée
+        </span>
+    {% elif course.etat == 'annule' %}
+        <span class="flex items-center gap-2 text-red-600 text-sm font-semibold bg-red-50 border border-red-200 px-3 py-1.5 rounded-full mt-1">
+            <span class="w-2 h-2 bg-red-400 rounded-full"></span>
+            Annulée
+        </span>
+    {% endif %}
+</div>
+
+<!-- Carte principale : Infos logistiques -->
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+
+    <!-- Date & heure -->
+    <div class="px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+            </div>
+            <span class="text-sm text-gray-500 font-medium">Date</span>
+        </div>
+
+        {% if course.type_livraison == "programmer" %}
+            <span class="text-sm font-semibold text-gray-800">{{ course.date_course_programmer|date:"d/m/Y" }} à {{ course.heure_course_programmer|time:"H:i" }}</span>        
+        {% else %}
+            <span class="text-sm font-semibold text-gray-800">{{ course.date_creation|date:"d/m/Y H:i" }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Temps estimé -->
+    <div class="px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <span class="text-sm text-gray-500 font-medium">Temps estimé</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-800">~35 minutes</span>
+    </div>
+
+    <!-- Type de livraison -->
+    <div class="px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"/>
+                </svg>
+            </div>
+            <span class="text-sm text-gray-500 font-medium">Type de livraison</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-800">{{ course.type_livraison }}</span>
+    </div>
+
+    <!-- Départ -->
+    <div class="px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+            </div>
+            <span class="text-sm text-gray-500 font-medium">Départ</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-800 text-right max-w-[200px]">{{ course.lieu_depart }}</span>
+    </div>
+
+    <!-- Livraison -->
+    <div class="px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+            </div>
+            <span class="text-sm text-gray-500 font-medium">Livraison</span>
+        </div>
+        <span class="text-sm font-semibold text-gray-800 text-right max-w-[200px]">{{ course.lieu_arrivee }}</span>
+    </div>
+
+    <!-- Prix -->
+    <div class="px-6 py-4 flex items-center justify-between bg-gray-50 rounded-b-2xl">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-gray-900 rounded-lg flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <span class="text-sm text-gray-600 font-semibold">Montant total</span>
+        </div>
+        <span class="text-xl font-bold text-gray-900">{{ course.prix }} <span class="text-sm font-semibold text-gray-500">FCFA</span></span>
+    </div>
+</div>
+
+<!-- Colis & Destinataire -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+    <!-- Colis -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col gap-3">
+        <div class="flex items-center gap-2 mb-1">
+            <div class="w-7 h-7 bg-purple-50 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10"/>
+                </svg>
+            </div>
+            <h2 class="text-sm font-semibold text-gray-700">Colis</h2>
+        </div>
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Nature</p>
+            <p class="text-sm font-semibold text-gray-800">{{ course.nature_colis }}</p>
+        </div>
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Description</p>
+            <p class="text-sm text-gray-600 leading-relaxed">{{ course.description_colis|default:"—" }}</p>
+        </div>
+    </div>
+
+    <!-- Destinataire -->
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 flex flex-col gap-3">
+        <div class="flex items-center gap-2 mb-1">
+            <div class="w-7 h-7 bg-teal-50 rounded-lg flex items-center justify-center">
+                <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+            <h2 class="text-sm font-semibold text-gray-700">Destinataire</h2>
+        </div>
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Nom</p>
+            <p class="text-sm font-semibold text-gray-800">{{ course.nom_destinataire }}</p>
+        </div>
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Téléphone</p>
+            <a href="tel:{{ course.telephone_destinataire }}" class="text-sm font-semibold text-teal-600 hover:underline">
+                {{ course.telephone_destinataire }}
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Livreur & Véhicule : visible uniquement si enroute ou encours ─── -->
+{% if course.etat == 'enroute' or course.etat == 'encours' %}
+<div class="bg-white rounded-2xl border border-blue-100 shadow-sm p-5">
+    <div class="flex items-center gap-2 mb-4">
+        <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center">
+            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+        </div>
+        <h2 class="text-sm font-semibold text-gray-700">Livreur & Véhicule</h2>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+
+        <!-- Livreur assigné (pleine largeur) -->
+        <div class="col-span-2 flex items-center gap-3 bg-blue-50 rounded-xl px-4 py-3">
+            <div class="w-9 h-9 rounded-full bg-blue-200 flex items-center justify-center text-blue-700 font-bold text-sm shrink-0">
+                {{ course.livreur.get_full_name|slice:":1"|upper }}
+            </div>
+            <div class="flex-1">
+                <p class="text-xs text-blue-400 uppercase tracking-wide">Livreur assigné</p>
+                <p class="text-sm font-semibold text-gray-800">{{ course.livreur.get_full_name }}</p>
+            </div>
+            <a href="tel:{{ course.livreur.telephone }}" class="text-xs text-blue-500 hover:text-blue-700 shrink-0">
+                📞 {{ course.livreur.telephone }}
+            </a>
+        </div>
+
+        <!-- Marque -->
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Marque</p>
+            <p class="text-sm font-semibold text-gray-800">{{ course.livreur.livreur_profile.marque_vehicule }}</p>
+        </div>
+
+        <!-- Type de véhicule -->
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Type</p>
+            <p class="text-sm font-semibold text-gray-800">{{ course.livreur.livreur_profile.type_vehicule }}</p>
+        </div>
+
+        <!-- Immatriculation (pleine largeur) -->
+        <div class="col-span-2">
+            <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Immatriculation</p>
+            <span class="inline-block text-sm font-bold text-gray-900 bg-gray-100 border border-gray-300 px-4 py-1.5 rounded-lg tracking-widest">
+                {{ course.livreur.livreur_profile.immatriculation}}
+            </span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Remarques -->
+<div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+    <h2 class="text-sm font-semibold text-gray-700 mb-2">Remarques</h2>
+    <p class="text-sm text-gray-500 italic">{{ course.instructions|default:"Aucune remarque." }}</p>
+</div>
+
+<!-- ─── Actions selon l'état ─── -->
+<div class="flex flex-col sm:flex-row gap-3 pb-4">
+
+    {% if course.etat == 'attente' %}
+        <!-- Peut annuler uniquement -->
+    <a href="{% url 'annuler_course' course.id %}" class="flex-1 inline-flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-semibold py-3 rounded-xl transition-colors text-sm">
+        Annuler la course
+    </a>
+
+
+    {% elif course.etat == 'enroute' or course.etat == 'encours' %}
+        <!-- Suivi en temps réel uniquement -->
+        <a href="{% url 'tracking:tracking_client' course.id %}" class="flex-1 bg-gray-900 inline-flex items-center justify-center hover:bg-gray-700 text-white font-semibold py-3 rounded-xl transition-colors text-sm">
+            Suivre en temps réel
+        </a>
+
+    {% elif course.etat == 'livre' %}
+        <!-- Course terminée, aucune action -->
+        <div class="flex-1 flex items-center justify-center gap-2 bg-green-50 border border-green-200 text-green-600 font-semibold py-3 rounded-xl text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Course livrée avec succès
+        </div>
+
+    {% elif course.etat == 'annule' %}
+        <!-- Course annulée, aucune action -->
+        <div class="flex-1 flex items-center justify-center gap-2 bg-red-50 border border-red-200 text-red-500 font-semibold py-3 rounded-xl text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            Course annulée
+        </div>
+    {% endif %}
+
+</div>
+
+    </main>
+
+</body>
+</html>

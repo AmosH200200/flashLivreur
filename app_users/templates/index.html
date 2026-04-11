@@ -1,0 +1,363 @@
+
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Accueil - Flash Livreur {% endblock %}
+
+{% block content %}
+
+<body class="bg-gray-50 " style="font-family: 'Helvetica Neue', Arial, sans-serif;">
+
+<!-- Arrière plan acceuil -->
+    <div class="relative h-screen ">
+    <img src="{% static 'img/free.avif' %}" class="w-full h-full object-cover " alt="">
+
+    <div class="absolute inset-0 bg-black bg-opacity-50">
+        <div class="w-full max-w-4xl min-h-screen items-center justify-center text-center flex flex-col mx-auto ">
+            <!-- Slogan principal -->
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+                    Vos besoins, à votre porte
+                </h1>            
+                    <div class="typewriter text-center text-white whitespace-nowrap" id="typing"></div>
+
+            </div>
+
+<!-- Barre de recherche -->
+<div class="w-full">
+    <div class="bg-white rounded-3xl md:rounded-full shadow-2xl p-2 flex flex-col md:flex-row gap-2 items-stretch md:items-center">
+        <!-- Champ d'adresse -->
+        <div class="flex items-center flex-1 px-4 py-3 md:py-0">
+            <!-- Icône de localisation -->
+            <svg class="w-6 h-6 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <input
+                type="text"
+                id="addressInput"
+                placeholder="Saisissez l'adresse de livraison"
+                class="w-full text-lg border-none outline-none focus:outline-none text-gray-800"
+            />
+        </div>
+
+        <!-- Bouton -->
+        <a
+            href="{% url 'lancer_course' %}"
+            id="startButton"
+            class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105 whitespace-nowrap w-full md:w-auto"
+        >
+            Démarrer ma course
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+        </a>
+    </div>
+</div>
+
+        </div>
+    </div>
+
+    </div>
+
+
+
+
+    <!-- Hero Section -->
+  
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 mb-16 ">
+            <div class="text-center">
+                <!-- Hero Content -->
+                <div class="max-w-4xl mx-auto">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                        Livraison ultra-rapide 
+                        <br class="hidden sm:block">à votre porte
+                    </h1>
+                    
+                    <p class="text-xl sm:text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                        Commandez ce que vous voulez, quand vous voulez. 
+                        Livraison en moins de 30 minutes partout en ville.
+                    </p>
+                    
+                    <!-- CTA Buttons -->
+                    <div class="mx-auto w-80 gap-2 mt-8 mb-16 sm:flex sm:justify-center">
+                        <div class=""> 
+                            <a href="#">
+                                <img src="{% static 'img/apstore.png' %}" alt="img" class="object-cover rounded-2xl h-full w-full object-contain">
+                            </a>   
+                        </div>                   
+                        <div class="">
+                            <a href="#">
+                                <img src="{% static 'img/playstore.png' %}" alt="img1" class="object-cover rounded-2xl h-full w-full object-contain">
+                            </a>   
+                        </div>                                       
+                    </div>
+
+                    <!-- Stats -->
+                    <!-- <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16">
+                        <div class="text-center">
+                            <div class="text-3xl sm:text-4xl font-bold text-orange-primary mb-2">30min</div>
+                            <div class="text-gray-600 font-medium">Livraison moyenne</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl sm:text-4xl font-bold text-orange-primary mb-2">24/7</div>
+                            <div class="text-gray-600 font-medium">Service disponible</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl sm:text-4xl font-bold text-orange-primary mb-2">50k+</div>
+                            <div class="text-gray-600 font-medium">Clients satisfaits</div>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        
+
+         <!--Section lancer votre course-->
+
+        <section class=" px-4 md:px-8 lg:px-16 mb-20">
+        <div class="max-w-7xl w-full mx-auto">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="grid md:grid-cols-[35%_65%] gap-0 items-center">
+                    <!-- Contenu texte à gauche -->
+                    <div class="p-8 md:p-12 lg:p-16">
+                        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                            Lancer une course
+                        </h2>
+                        <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                            Organisez votre course en quelques clics. 
+                        </p>
+                        <a href="{% url 'lancer_course' %}" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl">
+                            En savoir plus
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <!-- Image à droite -->
+                    <div class="h-full min-h-[400px] bg-gradient-to-br from-orange-400 to-orange-600 relative overflow-hidden">
+                        <img src="{% static 'img/img1.jpg' %}" alt="Course" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>  
+
+           <!--Section devenir partenaire-->
+
+        <section class=" px-4 md:px-8 lg:px-16 mt-16 mb-10">
+        <div class="max-w-7xl w-full mx-auto">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="grid md:grid-cols-[65%_35%] gap-0 items-center">
+
+                    <!-- Image à gauche -->
+                    <div class="h-full min-h-[400px] bg-gradient-to-br from-orange-400 to-orange-600 relative overflow-hidden">
+                        <img src="{% static 'img/img2.jpeg' %}" alt="Course" class="w-full h-full object-cover">
+                    </div>                    
+                    <!-- Contenu texte à droite -->
+                    <div class="p-8 md:p-12 lg:p-16">
+                        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                            Devenir partenaire
+                        </h2>
+                        <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                            
+                            Rejoignez notre réseau de partenaires et bénéficiez d'une visibilité accrue ainsi que d'opportunités de croissance.
+                        </p>
+                        <a href="{% url 'partenaire_register' %}" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl">
+                            En savoir plus
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                   
+                </div>
+            </div>
+        </div>
+    </section>  
+    
+    
+
+    <!-- Features Section -->
+    <!-- <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                    Pourquoi choisir <span class="text-orange-primary">Flash Livreur</span> ?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Une expérience de livraison révolutionnaire qui simplifie votre quotidien
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-6 rounded-xl hover:shadow-lg transition duration-300">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">⚡</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Super rapide</h3>
+                    <p class="text-gray-600">Livraison express en moins de 30 minutes</p>
+                </div>
+                
+                <div class="text-center p-6 rounded-xl hover:shadow-lg transition duration-300">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">🛡️</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">100% sécurisé</h3>
+                    <p class="text-gray-600">Vos commandes sont protégées et assurées</p>
+                </div>
+                
+                <div class="text-center p-6 rounded-xl hover:shadow-lg transition duration-300">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-2xl">💰</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Prix abordables</h3>
+                    <p class="text-gray-600">Tarifs transparents sans frais cachés</p>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+        <!-- Section Découvrir -->
+    <section id="decouvrir" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- En-tête de section -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Découvrir notre plateforme
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Connectez-vous instantanément avec des livreurs de confiance pour tous vos besoins de livraison. 
+                    Simple, rapide et fiable.
+                </p>
+            </div>
+
+            <!-- Grid des fonctionnalités -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                <!-- Fonctionnalité 1 -->
+                <div class="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="bg-orange-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fas fa-bolt text-2xl text-orange-500 group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Livraison Express</h3>
+                    <p class="text-gray-600">
+                        Lancez une course immédiatement et recevez vos colis en un temps record grâce à notre réseau de livreurs disponibles.
+                    </p>
+                </div>
+
+                <!-- Fonctionnalité 2 -->
+                <div class="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="bg-orange-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fas fa-calendar-alt text-2xl text-orange-500 group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Programmation Flexible</h3>
+                    <p class="text-gray-600">
+                        Planifiez vos livraisons à l'avance selon votre emploi du temps. Choisissez le créneau qui vous convient le mieux.
+                    </p>
+                </div>
+
+                <!-- Fonctionnalité 3 -->
+                <div class="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="bg-orange-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fas fa-users text-2xl text-orange-500 group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Livreurs Vérifiés</h3>
+                    <p class="text-gray-600">
+                        Tous nos livreurs sont soigneusement sélectionnés et vérifiés pour garantir la sécurité et la qualité de service.
+                    </p>
+                </div>
+
+                <!-- Fonctionnalité 4 -->
+                <div class="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="bg-orange-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fas fa-map-marker-alt text-2xl text-orange-500 group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Suivi en Temps Réel</h3>
+                    <p class="text-gray-600">
+                        Suivez votre colis en direct sur notre plateforme et restez informé de chaque étape de la livraison.
+                    </p>
+                </div>
+
+                <!-- Fonctionnalité 5 -->
+                <div class="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="bg-orange-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fas fa-shield-alt text-2xl text-orange-500 group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Sécurité Garantie</h3>
+                    <p class="text-gray-600">
+                        Vos colis sont assurés et protégés. En cas de problème, notre service client est là pour vous aider.
+                    </p>
+                </div>
+
+                <!-- Fonctionnalité 6 -->
+                <div class="group bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                    <div class="bg-orange-100 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
+                        <i class="fas fa-mobile-alt text-2xl text-orange-500 group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Interface Intuitive</h3>
+                    <p class="text-gray-600">
+                        Une plateforme simple à utiliser, accessible sur tous vos appareils pour commander en quelques clics.
+                    </p>
+                </div>
+            </div>
+            
+
+            <!-- CTA Section -->
+            <div class="text-center">
+                <a href="{% url 'lancer_course' %}" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:shadow-lg transform hover:scale-105"> 
+                    Commencer maintenant
+                </a>
+            </div>
+        </div>
+    </section>
+
+<script>
+const phrases = [
+  "Optimisez vos opérations.",
+  "Un service de livraison réactif.",
+  "Suivez vos colis en temps réel.",
+];
+
+let i = 0;
+let j = 0;
+let isDeleting = false;
+let isPausing = false;
+
+function type() {
+  const current = phrases[i];
+  const el = document.getElementById("typing");
+
+  if (!isDeleting) {
+    el.innerHTML = current.substring(0, j + 1);
+    j++;
+
+    if (j === current.length) {
+      isPausing = true;
+      setTimeout(() => {
+        isPausing = false;
+        isDeleting = true;
+        type();
+      }, 1500);
+      return;
+    }
+  } else {
+    el.innerHTML = current.substring(0, j - 1);
+    j--;
+
+    if (j === 0) {
+      isDeleting = false;
+      i = (i + 1) % phrases.length;
+    }
+  }
+
+  setTimeout(type, isDeleting ? 50 : 100);
+}
+
+type();
+</script>
+</body>
+</html>
+{% endblock %}

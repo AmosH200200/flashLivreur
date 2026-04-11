@@ -1,0 +1,71 @@
+    <aside id="sidebar" class="bg-[#0a1929] text-white fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 transform transition-transform duration-300 lg:translate-x-0 -translate-x-full z-40 overflow-y-auto">
+        <div class="p-6">
+            
+        <div class="mb-8 text-center">
+        <div class="relative inline-block">
+            {% if user.photo %}
+            <img
+            src="{{ user.photo.url }}"
+            alt="{{ user.first_name }} {{ user.last_name }}"
+            class="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
+            />
+            {% else %}
+            <img
+            src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=3b82f6&color=fff&size=80"
+            alt="{{ user.first_name }} {{ user.last_name }}"
+            class="w-20 h-20 rounded-full mx-auto mb-3"
+            />
+            {% endif %}
+
+            <!-- Bouton édition -->
+            <button
+            onclick="openPhotoModal()"
+            class="absolute bottom-3 right-0 w-6 h-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-md transition"
+            >
+            <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            </button>
+        </div>
+
+        <h3 class="font-bold">{{ user.first_name }} {{ user.last_name }}</h3>
+        <p class="text-sm text-gray-400">En ligne</p>
+        </div>
+
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#1a2942] transition">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'gestion_client' %}" onclick="showSection('clients')" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#1a2942] transition">
+                    <i class="fas fa-users"></i>
+                    <span>Gestion des clients</span>
+                </a>
+                <a href="{% url 'gestion_livreur' %}" onclick="showSection('livreurs')" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#1a2942] transition">
+                    <i class="fas fa-motorcycle"></i>
+                    <span>Gestion des livreurs</span>
+                </a>
+                <a href="{% url 'gestion_commercial' %}" onclick="showSection('partenaires')" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#1a2942] transition">
+                    <i class="fas fa-handshake"></i>
+                    <span>Gestion des commerciaux</span>
+                </a>
+                <a href="{% url 'gestion_admin' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#1a2942] transition">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Gestion des admins</span>
+                </a>                
+                <a href="{% url 'index' 
+                %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-[#1a2942] transition mt-8">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Retour au site</span>
+                </a>
+                <a href="{% url 'user_logout' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-600 transition text-red-400">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
+                </a>
+            </nav>
+
+      
+        </div>
+    </aside>
+
+    

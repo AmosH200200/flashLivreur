@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Administrateur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'calm-blue': '#e0f2fe',
+                        'calm-blue-dark': '#0284c7',
+                        'calm-gray': '#f1f5f9'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50 to-blue-50 flex items-center justify-center p-4">
+    <!-- Container principal -->
+    <div class="w-full max-w-md">
+        <!-- Carte de connexion -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 transition-all duration-300 hover:shadow-2xl">
+            <!-- En-tête -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-br from-sky-400 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-800 mb-2">Espace Administrateur</h1>
+                <p class="text-slate-500 text-sm">Connectez-vous pour accéder au panneau d'administration</p>
+            </div>
+
+            <!-- Formulaire -->
+            <form id="loginForm" class="space-y-6" method="POST" action="{% url 'login_user' %}">
+                        {% csrf_token %}
+                <!-- Champ Username -->
+                <div class="relative">
+                    <!-- <label for="username" class="block text-sm font-medium text-slate-700 mb-2">
+                        Nom d'utilisateur
+                    </label> -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="phone" 
+                            required
+                            class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                            placeholder="Votre numéro de téléphone"
+                        >
+                    </div>
+                </div>
+
+                <!-- Champ Mot de passe -->
+                <div class="relative">
+                    <!-- <label for="password" class="block text-sm font-medium text-slate-700 mb-2">
+                        Mot de passe
+                    </label> -->
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            required
+                            class="block w-full pl-10 pr-12 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all duration-200 bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                            placeholder="Mot de passe"
+                        >
+                        <button 
+                            type="button" 
+                            id="togglePassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-sky-600 transition-colors duration-200"
+                        >
+                            <svg id="eyeOpen" class="h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <svg id="eyeClosed" class="h-5 w-5 text-slate-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Case à cocher "Se souvenir" -->
+                <div class="flex items-center">
+                    <input 
+                        id="remember" 
+                        name="remember" 
+                        type="checkbox" 
+                        class="h-4 w-4 text-sky-600 focus:ring-sky-500 border-slate-300 rounded transition-colors duration-200"
+                    >
+                    <label for="remember" class="ml-2 block text-sm text-slate-600">
+                        Se souvenir de moi
+                    </label>
+                </div>
+
+                <!-- Bouton de connexion -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-sky-500 to-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-sky-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                    <span id="buttonText">Se connecter</span>
+                    <svg id="loadingSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden inline" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+               
+                
+                
+
+            <!-- Message d'erreur -->
+             {% for message in messages %}
+             <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm hidden">
+                <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2 " fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                 <p>{{ message }}</p>   
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Lien mot de passe oublié -->
+            <div class="mt-6 text-center">
+                <a href="#" class="text-sm text-sky-600 hover:text-sky-700 font-medium transition-colors duration-200">
+                    Mot de passe oublié ?
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-slate-400 text-xs">
+            © 2024 Admin Panel. Tous droits réservés.
+        </div>
+    </div>
+
+    <script>
+        // Fonctionnalité pour afficher/masquer le mot de passe
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordField = document.getElementById('password');
+        const eyeOpen = document.getElementById('eyeOpen');
+        const eyeClosed = document.getElementById('eyeClosed');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            eyeOpen.classList.toggle('hidden');
+            eyeClosed.classList.toggle('hidden');
+        });
+
+        // Gestion du formulaire de connexion
+        const loginForm = document.getElementById('loginForm');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        loginForm.addEventListener('submit', async function(e) {
+          
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            // Validation simple
+            if (!phone || !password) {
+            e.preventDefault();                
+            alert('Veuillez remplir tous les champs.');
+                return;
+            }
+
+            // Animation de chargement
+            buttonText.textContent = 'Connexion...';
+            loadingSpinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+
+          
+        });
+
+        // Animation au focus des champs
+        // const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+        // inputs.forEach(input => {
+        //     input.addEventListener('focus', function() {
+        //         this.parentElement.classList.add('ring-2', 'ring-sky-200');
+        //     });
+            
+        //     input.addEventListener('blur', function() {
+        //         this.parentElement.classList.remove('ring-2', 'ring-sky-200');
+        //     });
+        // });
+
+        // Animation de particules en arrière-plan (optionnel)
+        // function createFloatingElements() {
+        //     const container = document.body;
+        //     const elements = ['○', '◇', '△'];
+            
+        //     for (let i = 0; i < 15; i++) {
+        //         const element = document.createElement('div');
+        //         element.textContent = elements[Math.floor(Math.random() * elements.length)];
+        //         element.className = 'fixed text-sky-200/20 pointer-events-none select-none';
+        //         element.style.left = Math.random() * 100 + '%';
+        //         element.style.top = Math.random() * 100 + '%';
+        //         element.style.fontSize = (Math.random() * 20 + 10) + 'px';
+        //         element.style.animation = `float ${Math.random() * 10 + 10}s linear infinite`;
+                
+        //         container.appendChild(element);
+        //     }
+        // }
+
+        // Ajout des animations CSS pour les particules
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialiser les particules flottantes
+        createFloatingElements();
+    </script>
+</body>
+</html>

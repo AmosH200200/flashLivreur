@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Lancez votre course | FlashLivreur{% endblock %} 
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support — FlashLivreur</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        flash: '#FF5C00',
+        'flash-light': '#FF7A2B',
+      },
+      fontFamily: {
+        syne: ['Syne', 'sans-serif'],
+        dm: ['DM Sans', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  .faq-tab { background: white; border-color: #e5e7eb; color: #6b7280; }
+  .faq-tab:hover { background: #FF5C00; border-color: #FF5C00; color: white; }
+  .active-tab { background: #FF5C00 !important; border-color: #FF5C00 !important; color: white !important; }
+  .faq-item.open { border-color: rgba(255,92,0,0.35) !important; }
+  .faq-item.open .faq-arrow { transform: rotate(180deg); color: #FF5C00; }
+  .faq-item.open .faq-a { max-height: 300px !important; }
+</style>
+</head>
+<body class="font-dm bg-gray-50 min-h-screen text-gray-800">
+
+
+<!-- HERO -->
+<section class="pt-24 pb-12 text-center">
+  <div class="max-w-2xl mx-auto px-6">
+    <h1 class="font-jakarta font-extrabold text-4xl md:text-5xl text-gray-900 mb-4">
+      Besoin d'aide ? On est là.
+    </h1>
+   <!-- <p class="text-gray-500 text-lg">
+      Notre équipe est là pour résoudre vos problèmes rapidement.
+    </p> -->
+  </div>
+</section>
+
+  <!-- STATUS BAR -->
+  <div class="max-w-4xl mx-auto px-6 mb-14">
+    <div class="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+      <div class="flex items-center gap-3 bg-white px-5 py-4 border-b sm:border-b-0 sm:border-r border-gray-100">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow shadow-green-200 flex-shrink-0"></span>
+        <div>
+          <div class="text-xs text-gray-400">Application cliente</div>
+          <div class="text-sm font-semibold text-gray-800">Opérationnelle</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 bg-white px-5 py-4 border-b sm:border-b-0 sm:border-r border-gray-100">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow shadow-green-200 flex-shrink-0"></span>
+        <div>
+          <div class="text-xs text-gray-400">App livreur</div>
+          <div class="text-sm font-semibold text-gray-800">Opérationnelle</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 bg-white px-5 py-4">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow shadow-amber-200 flex-shrink-0"></span>
+        <div>
+          <div class="text-xs text-gray-400">Paiements</div>
+          <div class="text-sm font-semibold text-gray-800">Légère latence</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <section id="faq" class="max-w-4xl mx-auto px-6 mb-20">
+    <h2 class="font-syne font-bold text-2xl tracking-tight text-gray-900 mb-5">Questions fréquentes</h2>
+    <div class="flex flex-wrap gap-2 mb-6">
+      <button onclick="switchTab(this,'tous')" class="faq-tab active-tab px-4 py-1.5 rounded-full text-sm font-medium border transition-all">Tous</button>
+      <button onclick="switchTab(this,'client')" class="faq-tab px-4 py-1.5 rounded-full text-sm font-medium border transition-all">👤 Clients</button>
+      <button onclick="switchTab(this,'livreur')" class="faq-tab px-4 py-1.5 rounded-full text-sm font-medium border transition-all">🛵 Livreurs</button>
+      <button onclick="switchTab(this,'paiement')" class="faq-tab px-4 py-1.5 rounded-full text-sm font-medium border transition-all">💳 Paiements</button>
+    </div>
+    <div id="faqList" class="flex flex-col gap-3">
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="client">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Ma commande n'est pas arrivée, que faire ?
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">Vérifiez d'abord l'adresse renseignée dans votre commande. Si elle est correcte, consultez le suivi en temps réel dans l'app FlashLivreur. Si le statut est bloqué depuis plus de 30 minutes, ouvrez un ticket — notre équipe intervient sous 2h en heures ouvrées.</div>
+        </div>
+      </div>
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="client">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Comment modifier mon adresse de livraison ?
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">Vous pouvez modifier l'adresse <span class="bg-orange-100 text-flash text-xs font-semibold px-1.5 py-0.5 rounded">avant</span> que le livreur accepte votre commande. Allez dans <strong class="text-gray-700">Mes commandes › Modifier</strong>. Une fois le livreur en route, contactez-le via le chat intégré.</div>
+        </div>
+      </div>
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="paiement">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Je n'ai pas été remboursé après une annulation.
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">Les remboursements sont traités sous 3 à 5 jours ouvrés selon votre banque. Si le délai est dépassé, contactez notre support avec la référence de commande — nous ferons le suivi avec le prestataire de paiement.</div>
+        </div>
+      </div>
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="livreur">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Quand est-ce que je reçois mes gains ?
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">Les virements sont effectués chaque <strong class="text-gray-700">lundi</strong> pour les gains de la semaine précédente. Assurez-vous que votre IBAN est à jour dans <em>Mon profil › Informations bancaires</em>. Un délai de 1 à 2 jours supplémentaires peut s'appliquer.</div>
+        </div>
+      </div>
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="livreur">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Mon compte livreur a été désactivé sans raison.
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">La désactivation peut intervenir suite à plusieurs annulations consécutives, une note en dessous de 3,5 étoiles ou un document expiré. Ouvrez un ticket en sélectionnant « Compte suspendu » et joignez vos documents à jour. Notre équipe réexamine sous 48h.</div>
+        </div>
+      </div>
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="client">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Comment signaler un livreur ?
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">Depuis votre historique de commandes, appuyez sur la commande concernée puis <strong class="text-gray-700">Signaler un problème › Comportement inapproprié</strong>. Votre signalement est traité sous 24h et reste confidentiel.</div>
+        </div>
+      </div>
+
+      <div class="faq-item bg-white border border-gray-200 rounded-xl overflow-hidden" data-cat="paiement">
+        <div class="faq-q flex items-center justify-between px-5 py-4 cursor-pointer font-medium text-sm text-gray-800 select-none" onclick="toggleFaq(this)">
+          Ma carte a été débitée deux fois pour la même commande.
+          <span class="faq-arrow text-gray-400 text-base transition-transform duration-300">▾</span>
+        </div>
+        <div class="faq-a max-h-0 overflow-hidden transition-all duration-300 text-sm text-gray-500 leading-relaxed px-5">
+          <div class="pb-4">Il s'agit parfois d'une autorisation temporaire qui disparaît sous 5 jours. Si les deux débits persistent, contactez le support avec vos relevés bancaires et le numéro de commande — nous initierons un remboursement immédiat.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="max-w-4xl mx-auto px-6 mb-20">
+    <h2 class="font-syne font-bold text-2xl tracking-tight text-gray-900 mb-5">Nous contacter</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+      <!-- Chat -->
+      <div class="relative bg-white border-2 border-flash rounded-2xl p-6 bg-gradient-to-br from-orange-50 to-white">
+        <span class="absolute top-4 right-4 bg-flash text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Recommandé</span>
+        <div class="text-2xl mb-4">💬</div>
+        <h3 class="font-syne font-bold text-base mb-1.5 text-gray-900">Chat en direct</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Discutez avec un agent en temps réel. La solution la plus rapide pour les urgences.</p>
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> 3 agents disponibles maintenant
+        </div>
+        <a href="#" class="inline-flex items-center gap-1.5 bg-flash hover:bg-flash-light text-white text-sm font-semibold px-4 py-2 rounded-lg no-underline transition-colors">Démarrer le chat ↗</a>
+      </div>
+
+      <!-- Email -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6">
+        <div class="text-2xl mb-4">📧</div>
+        <h3 class="font-syne font-bold text-base mb-1.5 text-gray-900">Email</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Envoyez-nous un message détaillé. Réponse garantie sous 24h en jours ouvrés.</p>
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> support@flashlivreur.com
+        </div>
+        <a href="mailto:support@flashlivreur.com" class="inline-flex items-center gap-1.5 border border-gray-200 hover:border-flash hover:text-flash text-gray-700 text-sm font-semibold px-4 py-2 rounded-lg no-underline transition-colors">Envoyer un email ↗</a>
+      </div>
+
+      <!-- Téléphone -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6">
+        <div class="text-2xl mb-4">📱</div>
+        <h3 class="font-syne font-bold text-base mb-1.5 text-gray-900">Téléphone</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Pour les litiges urgents uniquement. Disponible lun–ven, 8h–19h.</p>
+        <div class="flex items-center gap-2 text-xs text-gray-400 mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> +229 01 23 45 67
+        </div>
+        <a href="tel:+22901234567" class="inline-flex items-center gap-1.5 border border-gray-200 hover:border-flash hover:text-flash text-gray-700 text-sm font-semibold px-4 py-2 rounded-lg no-underline transition-colors">Appeler ↗</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-gray-200 px-8 py-6 flex flex-wrap items-center justify-between gap-3">
+    <p class="text-xs text-gray-400">© 2026 FlashLivreur · Support disponible 7j/7</p>
+    <div class="flex gap-5">
+      <a href="#" class="text-xs text-gray-400 hover:text-gray-700 no-underline">CGU</a>
+      <a href="#" class="text-xs text-gray-400 hover:text-gray-700 no-underline">Confidentialité</a>
+      <a href="#" class="text-xs text-gray-400 hover:text-gray-700 no-underline">Cookies</a>
+      <a href="#" class="text-xs text-gray-400 hover:text-gray-700 no-underline">Devenir livreur</a>
+    </div>
+  </footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+function switchTab(btn, cat) {
+  document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('active-tab'));
+  btn.classList.add('active-tab');
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.style.display = (cat === 'tous' || item.dataset.cat === cat) ? '' : 'none';
+    item.classList.remove('open');
+  });
+}
+
+const searchData = [
+  { q: 'suivi de commande', label: 'Suivre ma commande', cat: '📦 Livraison' },
+  { q: 'remboursement', label: 'Demander un remboursement', cat: '💳 Paiements' },
+  { q: 'paiement livreur', label: 'Recevoir mes gains', cat: '🛵 Livreur' },
+  { q: 'compte suspendu', label: 'Compte désactivé / suspendu', cat: '👤 Compte' },
+  { q: 'modifier adresse', label: "Modifier l'adresse de livraison", cat: '📦 Livraison' },
+  { q: 'colis perdu', label: 'Colis perdu ou non reçu', cat: '📦 Livraison' },
+  { q: 'double débit', label: 'Débité deux fois', cat: '💳 Paiements' },
+  { q: 'signaler livreur', label: 'Signaler un livreur', cat: '⭐ Avis' },
+];
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const val = this.value.toLowerCase().trim();
+  const res = document.getElementById('search-results');
+  if (!val) { res.classList.add('hidden'); return; }
+  const matches = searchData.filter(d => d.q.includes(val) || d.label.toLowerCase().includes(val));
+  if (!matches.length) { res.classList.add('hidden'); return; }
+  res.innerHTML = matches.map(m => `
+    <div onclick="scrollToFaq()" class="flex items-center gap-3 bg-white border border-gray-200 hover:border-orange-400 rounded-xl px-4 py-3 cursor-pointer mb-1.5 transition-colors">
+      <span class="text-sm text-gray-800">${m.label}</span>
+      <small class="ml-auto text-xs text-gray-400">${m.cat}</small>
+    </div>`).join('');
+  res.classList.remove('hidden');
+});
+
+
+
+function scrollToFaq() {
+  document.getElementById('faq').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('search-results').classList.add('hidden');
+}
+</script>
+
+</body>
+</html>
+{% endblock %}

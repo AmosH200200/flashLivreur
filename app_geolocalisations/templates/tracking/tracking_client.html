@@ -1,0 +1,427 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suivi de votre livraison — {{ course.numero_course }}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #f1f5f9;
+        --accent: #f97316;
+        --accent2: #0ea5e9;
+        --border: #e2e8f0;
+      }
+
+      * {
+        font-family: "DM Sans", sans-serif;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--primary);
+        color: #0f172a;
+        margin: 0;
+        min-height: 100vh;
+      }
+      h1,
+      h2,
+      h3,
+      .font-display {
+        font-family: "Syne", sans-serif;
+      }
+
+      #map {
+        width: 100%;
+        height: 100%;
+        border-radius: 16px;
+      }
+
+      /* Panneaux blancs avec légère ombre */
+      .card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .pulse-dot {
+        width: 12px;
+        height: 12px;
+        background: var(--accent);
+        border-radius: 50%;
+        position: relative;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .pulse-dot::after {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        animation: pulse 1.5s ease-out infinite;
+        opacity: 0;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(0.8);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(2.2);
+          opacity: 0;
+        }
+      }
+
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .status-enroute {
+        background: #fff7ed;
+        color: #c2410c;
+        border: 1px solid #fed7aa;
+      }
+      .status-encours {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+      }
+      .status-livre {
+        background: #f0fdf4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+      }
+      .status-attente {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+      }
+
+      .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 15px;
+      }
+
+      .progress-track {
+        height: 5px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+        transition: width 0.5s ease;
+      }
+
+      .label {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-bottom: 2px;
+      }
+      .value {
+        color: #0f172a;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .section-title {
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 14px;
+        font-family: "Syne", sans-serif;
+      }
+      /* Sur desktop, la carte prend toute la hauteur disponible */
+    @media (min-width: 1024px) {
+    #map-container {
+        height: auto !important;
+    }
+}
+    </style>
+  </head>
+  <body>
+    <div class="flex flex-col h-screen overflow-hidden">
+      <!-- HEADER -->
+      <header class="card mx-4 mt-4 px-5 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+              <a href="{% url 'detail_course_client' course.id %}" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                  </svg>
+              </a>
+              <div>
+                  <p class="label font-display uppercase tracking-widest mb-1">Suivi de livraison</p>
+                  <h1 class="text-lg font-display font-bold text-slate-900">{{ course.numero_course }}</h1>
+              </div>
+          </div>
+          <span id="status-badge" class="status-badge status-enroute">
+              <span class="pulse-dot"></span>
+              <span id="status-text">En route</span>
+          </span>
+      </header>
+
+<!-- CORPS -->
+<div class="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4 p-4">
+
+    <!-- CARTE (en haut sur mobile, à gauche sur desktop) -->
+    <div class="card overflow-hidden lg:flex-1" id="map-container" style="height:280px;">
+        <div id="map" class="w-full h-full"></div>
+    </div>
+
+    <!-- PANNEAU INFOS (en bas sur mobile, à droite sur desktop) -->
+    <div class="flex flex-col gap-3 overflow-y-auto lg:w-80" style="scrollbar-width:none;">
+        <!-- Livreur -->
+        <div class="card p-5">
+          <p class="section-title">Votre livreur</p>
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl" style="background:#fff7ed;">
+              🛵
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900" id="livreur-nom">{{ course.livreur.get_full_name }}</p>
+              <p class="label">Livreur assigné</p>
+              <a href="tel:{{ course.livreur.telephone }}" class="label" style="color:#f97316; font-size:12px;">
+                📞 {{ course.livreur.telephone }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+          <!-- Progression -->
+          <div class="card p-5">
+            <p class="section-title">Progression</p>
+            <div
+              class="flex justify-between mb-1"
+              style="font-size: 11px; color: #94a3b8"
+            >
+              <span>Départ</span>
+              <span id="progress-pct" style="color: #f97316; font-weight: 700"
+                >50%</span
+              >
+              <span>Arrivée</span>
+            </div>
+            <div class="progress-track">
+              <div
+                class="progress-fill"
+                id="progress-bar"
+                style="width: 50%"
+              ></div>
+            </div>
+            <div class="mt-4">
+              <div class="info-row">
+                <div class="info-icon" style="background: #fff7ed">📦</div>
+                <div>
+                  <p class="label">Départ</p>
+                  <p class="value">{{ course.lieu_depart }}</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background: #eff6ff">📍</div>
+                <div>
+                  <p class="label">Destination</p>
+                  <p class="value">{{ course.lieu_arrivee }}</p>
+                </div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon" style="background: #f0fdf4">🎁</div>
+                <div>
+                  <p class="label">Colis</p>
+                  <p class="value">{{ course.nature_colis }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Destinataire -->
+          <div class="card p-5">
+            <p class="section-title">Destinataire</p>
+            <div class="info-row" style="border-bottom: none; padding-top: 0">
+              <div class="info-icon" style="background: #faf5ff">👤</div>
+              <div>
+                <p class="font-medium text-slate-900">
+                  {{ course.nom_destinataire }}
+                </p>
+                <p class="label">{{ course.telephone_destinataire }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dernière mise à jour -->
+          <div class="card p-4 flex items-center gap-3">
+            <div class="pulse-dot"></div>
+            <div>
+              <p class="label">Dernière mise à jour</p>
+              <p class="value" id="last-update">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const API_URL       = "{% url 'tracking:get_position' course.id %}";
+        const POLL_INTERVAL = 3000;
+
+        const LAT_DEPART  = {{ course.latitude_depart|default:"6.3929" }};
+        const LNG_DEPART  = {{ course.longitude_depart|default:"2.3658" }};
+        const LAT_ARRIVEE = {{ course.latitude_arrivee|default:"6.3791" }};
+        const LNG_ARRIVEE = {{ course.longitude_arrivee|default:" 2.3867" }};
+
+        // ── CARTE CLAIRE style Booking / Google Maps ──────────────────────────────
+        const map = L.map('map', { zoomControl: false }).setView([LAT_DEPART, LNG_DEPART], 13);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution: '© OpenStreetMap contributors © CARTO',
+          maxZoom: 19
+        }).addTo(map);
+
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        // ── MARQUEURS ─────────────────────────────────────────────────────────────
+        const iconLivreur = L.divIcon({
+          className: '',
+          html: `<div style="background:#f97316;width:36px;height:36px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 4px 12px rgba(249,115,22,0.45);">
+            <span style="transform:rotate(45deg);display:block;text-align:center;line-height:30px;font-size:14px;">🛵</span>
+          </div>`,
+          iconSize: [36, 36], iconAnchor: [18, 36],
+        });
+
+        const iconDepart = L.divIcon({
+          className: '',
+          html: `<div style="background:#f97316;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(249,115,22,0.4);"></div>`,
+          iconSize: [14, 14], iconAnchor: [7, 7],
+        });
+
+        const iconArrivee = L.divIcon({
+          className: '',
+          html: `<div style="background:#15803d;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(21,128,61,0.4);"></div>`,
+          iconSize: [18, 18], iconAnchor: [9, 9],
+        });
+
+        L.marker([LAT_DEPART, LNG_DEPART], { icon: iconDepart })
+          .addTo(map).bindPopup("📦 Départ : {{ course.lieu_depart }}");
+
+        L.marker([LAT_ARRIVEE, LNG_ARRIVEE], { icon: iconArrivee })
+          .addTo(map).bindPopup("📍 Destination : {{ course.lieu_arrivee }}");
+
+        L.polyline([[LAT_DEPART, LNG_DEPART], [LAT_ARRIVEE, LNG_ARRIVEE]], {
+          color: '#ffffff', weight: 9, opacity: 0.6
+        }).addTo(map);
+
+        L.polyline([[LAT_DEPART, LNG_DEPART], [LAT_ARRIVEE, LNG_ARRIVEE]], {
+          color: '#1d4ed8', weight: 5, opacity: 0.9
+        }).addTo(map);
+
+        let livreurMarker = null;
+        let routeLine = null;
+
+        // ── POLLING ───────────────────────────────────────────────────────────────
+        function fetchPosition() {
+          fetch(API_URL)
+            .then(r => r.json())
+            .then(data => {
+              if (!data.success) return;
+              const { latitude_actuelle: lat, longitude_actuelle: lng, etat } = data;
+
+              if (lat && lng) {
+                if (!livreurMarker) {
+                  livreurMarker = L.marker([lat, lng], { icon: iconLivreur }).addTo(map);
+                } else {
+                  livreurMarker.setLatLng([lat, lng]);
+                }
+                if (routeLine) map.removeLayer(routeLine);
+                routeLine = L.polyline([[lat, lng], [LAT_ARRIVEE, LNG_ARRIVEE]], {
+                  color: '#1d4ed8', weight: 5, opacity: 0.9
+                }).addTo(map);
+              }
+
+
+
+              updateStatus(etat);
+              document.getElementById('last-update').textContent =
+                new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+              if (etat === 'livre') { clearInterval(pollingInterval); showDeliveredMessage(); }
+            })
+            .catch(err => console.error('Erreur polling:', err));
+        }
+
+        function updateStatus(etat) {
+          const badge = document.getElementById('status-badge');
+          const labels = {
+            attente: ['status-attente', '⏳ En attente'],
+            enroute: ['status-enroute', '🛵 En route'],
+            encours: ['status-encours', '📦 En cours'],
+            livre:   ['status-livre',   '✅ Livré'],
+            annule:  ['status-attente', '❌ Annulé'],
+          };
+          const [cls, label] = labels[etat] || ['status-attente', etat];
+          badge.className = `status-badge ${cls}`;
+          document.getElementById('status-text').textContent = label;
+
+          const pct = { attente: 10, enroute: 45, encours: 75, livre: 100, annule: 0 }[etat] || 50;
+          document.getElementById('progress-bar').style.width = pct + '%';
+          document.getElementById('progress-pct').textContent = pct + '%';
+        }
+
+        function showDeliveredMessage() {
+          const overlay = document.createElement('div');
+          overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Syne',sans-serif;`;
+          overlay.innerHTML = `
+            <div style="text-align:center;padding:48px;background:#fff;border-radius:24px;box-shadow:0 24px 60px rgba(0,0,0,0.15);max-width:380px;">
+              <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+              <h2 style="color:#15803d;font-size:26px;font-weight:800;margin-bottom:8px;">Livraison effectuée !</h2>
+              <p style="color:#64748b;font-size:14px;">Votre colis a été livré avec succès.</p>
+              <button onclick="window.history.back()" style="margin-top:24px;background:#f97316;color:white;border:none;padding:12px 32px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;">
+                Retour à mes courses
+              </button>
+            </div>`;
+          document.body.appendChild(overlay);
+        }
+
+        fetchPosition();
+        const pollingInterval = setInterval(fetchPosition, POLL_INTERVAL);
+    </script>
+  </body>
+</html>

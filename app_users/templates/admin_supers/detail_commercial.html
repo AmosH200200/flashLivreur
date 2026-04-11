@@ -1,0 +1,814 @@
+{% extends 'admin_supers/base_dashboard.html' %} {% block content %}
+
+<div class="ml-0 lg:ml-64 mt-16 p-6">
+   <!-- En-tête avec bouton retour -->
+     <div class="mb-6">
+    <a
+      href="{% url 'gestion_commercial' %}"
+      class="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+    >
+      <i class="fas fa-arrow-left mr-2"></i>
+      <span>Retour à la liste des commercials</span>
+    </a>
+    <h2 class="text-3xl font-bold text-gray-800">Détails du commercial</h2>
+  </div>
+ <!-- Carte d'informations principales -->
+  <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+      <!-- Photo de profil -->
+      <div class="flex-shrink-0">
+        {% if commercial.commercial_profile.photo_profil %}
+        <img
+          src="{{ commercial.commercial_profile.photo_profil.url }}"
+          class="w-8 h-8 rounded-full mr-3 object-cover"
+        />
+        {% else %}
+        <img
+          src="https://ui-avatars.com/api/?name={{ commercial.last_name }}+{{ commercial.first_name }}&background=0D8ABC&color=fff&size=128"
+          alt="Photo de profil"
+          class="w-32 h-32 rounded-full border-4 border-blue-100"
+        />
+        {% endif %}
+      </div>
+
+      <!-- Informations personnelles -->
+      <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div>
+          <label class="text-sm text-gray-500 font-medium">ID commercial</label>
+          <p class="text-gray-800 font-semibold">{{ commercial.id }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Statut</label>
+                <p>
+                {% if commercial.is_active %}
+                  <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">Actif</span>
+                 {% else %}
+                  <span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">Inactif</span>
+                {% endif %}
+                </p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Nom</label>
+          <p class="text-gray-800 font-semibold">{{ commercial.last_name }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Prénom</label>
+          <p class="text-gray-800 font-semibold">{{ commercial.first_name }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Email</label>
+          <p class="text-gray-800">{{ commercial.email }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Téléphone</label>
+          <p class="text-gray-800">{{ commercial.telephone }}</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Rôle</label>
+          <p class="text-gray-800">commercial</p>
+        </div>
+        <div>
+          <label class="text-sm text-gray-500 font-medium">Membre depuis</label>
+          <p class="text-gray-800">{{commercial.date_joined|date:"d/m/y"}}</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex-shrink-0 flex flex-col gap-3">
+        <button type="button"
+                class="edit-user-btn px-4 py-2 bg-blue-600 text-white rounded"
+                data-id="{{ commercial.id }}"
+                data-nom="{{ commercial.last_name }}"
+                data-prenom="{{ commercial.first_name }}"
+                data-email="{{ commercial.email }}"
+                data-telephone="{{ commercial.telephone }}"
+                data-role="commercial"
+                data-statut="{% if commercial.is_active %}actif{% else %}inactif{% endif %}">
+            <i class="fas fa-edit"></i> Modifier
+        </button>
+
+        {% if commercial.is_active %}
+        <a
+          data-commercial-id="{{ commercial.id }}"
+          onclick="confirmDesactivate({{ commercial.id }}, 'commercial')"
+          class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center justify-center gap-2"
+          title="Bloquer"
+        >
+          <i class="fas fa-ban"></i>
+          <span>Bloquer</span>
+        </a>
+        {% else %}
+        <a
+          href="{% url 'activate_commercial' commercial.id %}"
+          class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition flex items-center justify-center gap-2"
+          title="Débloquer"
+        >
+          <i class="fas fa-check-circle"></i>
+          <span>Débloquer</span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% include 'partials/modal.html' %}
+
+  <!-- Section Informations du Commercial -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+  <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+    <i class="fas fa-building mr-3 text-blue-600"></i>
+    Informations de l'entreprise
+  </h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Logo de l'entreprise -->
+    <div class="md:col-span-2 flex items-center gap-4 pb-6 border-b border-gray-200">
+      <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+        <i class="fas fa-store text-white text-4xl"></i>
+      </div>
+      <div>
+        <h4 class="text-2xl font-bold text-gray-800">Restaurant Le Délice Africain</h4>
+        <p class="text-sm text-gray-500 mt-1">Logo de l'entreprise</p>
+      </div>
+    </div>
+
+    <!-- Nom de l'entreprise -->
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border-l-4 border-blue-600">
+      <label class="text-sm text-blue-800 font-semibold flex items-center mb-2">
+        <i class="fas fa-store-alt mr-2"></i>
+        Nom de l'entreprise
+      </label>
+      <p class="text-gray-900 font-bold text-lg">Restaurant Le Délice Africain</p>
+    </div>
+
+    <!-- Statut -->
+    <div class="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border-l-4 border-green-600">
+      <label class="text-sm text-green-800 font-semibold flex items-center mb-2">
+        <i class="fas fa-check-circle mr-2"></i>
+        Statut
+      </label>
+      <span class="inline-flex items-center px-4 py-2 rounded-full bg-green-500 text-white font-semibold text-sm shadow-md">
+        <i class="fas fa-circle text-xs mr-2 animate-pulse"></i>
+        Actif
+      </span>
+    </div>
+
+    <!-- Adresse -->
+    <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border-l-4 border-purple-600">
+      <label class="text-sm text-purple-800 font-semibold flex items-center mb-2">
+        <i class="fas fa-map-marker-alt mr-2"></i>
+        Adresse de l'entreprise
+      </label>
+      <p class="text-gray-900 font-medium">Cotonou, Akpakpa</p>
+      <p class="text-gray-700 text-sm mt-1">Avenue Steinmetz, Carrefour Enagnon</p>
+      <p class="text-gray-600 text-xs mt-1">Face à la station Total</p>
+    </div>
+
+    <!-- Type de partenariat -->
+    <div class="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg border-l-4 border-orange-600">
+      <label class="text-sm text-orange-800 font-semibold flex items-center mb-2">
+        <i class="fas fa-handshake mr-2"></i>
+        Type de partenariat
+      </label>
+      <span class="inline-flex items-center px-4 py-2 rounded-full bg-orange-500 text-white font-semibold text-sm shadow-md">
+        <i class="fas fa-crown mr-2"></i>
+        Premium
+      </span>
+    </div>
+
+    <!-- Horaires d'ouverture -->
+    <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 p-4 rounded-lg border-l-4 border-indigo-600">
+      <label class="text-sm text-indigo-800 font-semibold flex items-center mb-2">
+        <i class="fas fa-clock mr-2"></i>
+        Horaires d'ouverture
+      </label>
+      <div class="space-y-2">
+        <p class="text-gray-900 font-medium flex items-center">
+          <i class="fas fa-calendar-day text-indigo-500 mr-2 text-sm"></i>
+          Lundi - Vendredi: <span class="ml-2 text-indigo-700 font-bold">9h00 - 22h00</span>
+        </p>
+        <p class="text-gray-900 font-medium flex items-center">
+          <i class="fas fa-calendar-week text-indigo-500 mr-2 text-sm"></i>
+          Samedi - Dimanche: <span class="ml-2 text-indigo-700 font-bold">10h00 - 23h00</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Contact Email -->
+    <div class="bg-gradient-to-r from-pink-50 to-pink-100 p-4 rounded-lg border-l-4 border-pink-600">
+      <label class="text-sm text-pink-800 font-semibold flex items-center mb-2">
+        <i class="fas fa-envelope mr-2"></i>
+        Email de contact
+      </label>
+      <a href="mailto:contact@deliceafricain.bj" class="text-gray-900 font-medium hover:text-pink-600 transition">
+        contact@deliceafricain.bj
+      </a>
+    </div>
+
+    <!-- Description -->
+    <div class="md:col-span-2 bg-gradient-to-r from-teal-50 to-teal-100 p-4 rounded-lg border-l-4 border-teal-600">
+      <label class="text-sm text-teal-800 font-semibold flex items-center mb-3">
+        <i class="fas fa-info-circle mr-2"></i>
+        Description de l'entreprise
+      </label>
+      <p class="text-gray-800 leading-relaxed">
+        Le Délice Africain est un restaurant spécialisé dans la cuisine traditionnelle béninoise et africaine. 
+        Nous proposons une large gamme de plats authentiques préparés avec des ingrédients frais et locaux. 
+        Notre établissement offre un service de livraison rapide dans toute la ville de Cotonou et ses environs. 
+        Depuis notre ouverture en 2020, nous nous engageons à offrir une expérience culinaire exceptionnelle 
+        à tous nos clients avec des plats savoureux, un service irréprochable et des prix abordables.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="px-3 py-1 bg-teal-500 text-white rounded-full text-xs font-semibold">
+          <i class="fas fa-utensils mr-1"></i>Cuisine Africaine
+        </span>
+        <span class="px-3 py-1 bg-teal-500 text-white rounded-full text-xs font-semibold">
+          <i class="fas fa-truck mr-1"></i>Livraison rapide
+        </span>
+        <span class="px-3 py-1 bg-teal-500 text-white rounded-full text-xs font-semibold">
+          <i class="fas fa-star mr-1"></i>Qualité garantie
+        </span>
+        <span class="px-3 py-1 bg-teal-500 text-white rounded-full text-xs font-semibold">
+          <i class="fas fa-leaf mr-1"></i>Produits locaux
+        </span>
+      </div>
+    </div>
+
+    <!-- Informations supplémentaires -->
+    <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 pt-6 border-t border-gray-200">
+      <!-- Date d'inscription -->
+      <div class="bg-gray-50 p-4 rounded-lg text-center">
+        <i class="fas fa-calendar-plus text-3xl text-blue-600 mb-2"></i>
+        <p class="text-xs text-gray-500 font-medium">Partenaire depuis</p>
+        <p class="text-lg font-bold text-gray-800 mt-1">15 Janvier 2020</p>
+      </div>
+
+      <!-- Téléphone -->
+      <div class="bg-gray-50 p-4 rounded-lg text-center">
+        <i class="fas fa-phone text-3xl text-green-600 mb-2"></i>
+        <p class="text-xs text-gray-500 font-medium">Téléphone</p>
+        <p class="text-lg font-bold text-gray-800 mt-1">+229 97 12 34 56</p>
+      </div>
+
+      <!-- Localisation -->
+      <div class="bg-gray-50 p-4 rounded-lg text-center">
+        <i class="fas fa-map-pin text-3xl text-red-600 mb-2"></i>
+        <p class="text-xs text-gray-500 font-medium">Zone de livraison</p>
+        <p class="text-lg font-bold text-gray-800 mt-1">Cotonou & Environs</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Statistiques rapides -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-blue-100 text-sm">Commandes totales</p>
+          <p class="text-3xl font-bold mt-2">156</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-shopping-cart text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-md p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-green-100 text-sm">Commandes livrées</p>
+          <p class="text-3xl font-bold mt-2">142</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-check-double text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-md p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-red-100 text-sm">Commandes annulées</p>
+          <p class="text-3xl font-bold mt-2">8</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-times-circle text-3xl"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-md p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-purple-100 text-sm">Chiffre d'affaires</p>
+          <p class="text-3xl font-bold mt-2">₣ 2.4M</p>
+        </div>
+        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+          <i class="fas fa-chart-line text-3xl"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <!-- En-tête des onglets -->
+    <div class="border-b border-gray-200">
+      <nav class="flex">
+        <button
+          onclick="switchTab('commandes')"
+          id="tab-commandes"
+          class="tab-button active px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600"
+        >
+          <i class="fas fa-shopping-bag mr-2"></i>Historique des commandes
+        </button>
+        <button
+          onclick="switchTab('produits')"
+          id="tab-produits"
+          class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        >
+          <i class="fas fa-box mr-2"></i>Produits/Services
+        </button>
+        <button
+          onclick="switchTab('modifications')"
+          id="tab-modifications"
+          class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        >
+          <i class="fas fa-history mr-2"></i>Modifications du profil
+        </button>
+      </nav>
+    </div>
+
+    <!-- Contenu des onglets -->
+    <div class="p-6">
+      <!-- Onglet Commandes -->
+      <div id="content-commandes" class="tab-content">
+        <!-- Filtres -->
+        <div class="mb-4 flex flex-wrap gap-2">
+          <button
+            onclick="filterCommandes('all')"
+            class="filter-btn active px-4 py-2 rounded-lg bg-blue-500 text-white text-sm"
+          >
+            Toutes (156)
+          </button>
+          <button
+            onclick="filterCommandes('en_cours')"
+            class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            En cours (6)
+          </button>
+          <button
+            onclick="filterCommandes('livree')"
+            class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            Livrées (142)
+          </button>
+          <button
+            onclick="filterCommandes('annulee')"
+            class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300"
+          >
+            Annulées (8)
+          </button>
+        </div>
+
+        <!-- Liste des commandes -->
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+          <!-- Commande 1 -->
+          <div class="commande-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition" data-status="livree">
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#CMD001</span>
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                    Livrée
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    <strong>Client:</strong> Marie Kouassi
+                  </p>
+                  <p>
+                    <i class="fas fa-box text-purple-500 mr-2"></i>
+                    <strong>Produits:</strong> 3x Poulet Braisé, 2x Attiéké
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                    <strong>Livraison:</strong> Akpakpa, Rue 123
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>03/02/2026 à 12:30</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">15,500 FCFA</p>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-eye mr-1"></i>Détails
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commande 2 -->
+          <div class="commande-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition" data-status="en_cours">
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#CMD002</span>
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                    En cours
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    <strong>Client:</strong> Jean Ahouandjinou
+                  </p>
+                  <p>
+                    <i class="fas fa-box text-purple-500 mr-2"></i>
+                    <strong>Produits:</strong> 1x Poisson Grillé, 1x Riz
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                    <strong>Livraison:</strong> Fidjrossè, Zone Résidentielle
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>04/02/2026 à 13:45</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">8,000 FCFA</p>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-eye mr-1"></i>Détails
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commande 3 -->
+          <div class="commande-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition" data-status="annulee">
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#CMD003</span>
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800">
+                    Annulée
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    <strong>Client:</strong> Sandrine Dossou
+                  </p>
+                  <p>
+                    <i class="fas fa-box text-purple-500 mr-2"></i>
+                    <strong>Produits:</strong> 5x Pizza Margherita
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                    <strong>Livraison:</strong> Cadjéhoun, Quartier Résidentiel
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>01/02/2026 à 19:00</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">25,000 FCFA</p>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-eye mr-1"></i>Détails
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commande 4 -->
+          <div class="commande-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition" data-status="livree">
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#CMD004</span>
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                    Livrée
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    <strong>Client:</strong> Pascal Agbodjan
+                  </p>
+                  <p>
+                    <i class="fas fa-box text-purple-500 mr-2"></i>
+                    <strong>Produits:</strong> 2x Yassa Poulet, 3x Jus Bissap
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                    <strong>Livraison:</strong> Jéricho, Avenue Steinmetz
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>31/01/2026 à 14:15</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">12,300 FCFA</p>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-eye mr-1"></i>Détails
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commande 5 -->
+          <div class="commande-item border border-gray-200 rounded-lg p-4 hover:shadow-md transition" data-status="livree">
+            <div class="flex justify-between items-start">
+              <div class="flex-grow">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="font-semibold text-gray-800">#CMD005</span>
+                  <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
+                    Livrée
+                  </span>
+                </div>
+                <div class="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <i class="fas fa-user text-blue-500 mr-2"></i>
+                    <strong>Client:</strong> Christelle Koffi
+                  </p>
+                  <p>
+                    <i class="fas fa-box text-purple-500 mr-2"></i>
+                    <strong>Produits:</strong> 4x Alloco Poisson, 2x Sodabi
+                  </p>
+                  <p>
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
+                    <strong>Livraison:</strong> Godomey, Carrefour PK10
+                  </p>
+                  <p><i class="fas fa-calendar mr-2"></i>30/01/2026 à 20:00</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-600">18,700 FCFA</p>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-800">
+                  <i class="fas fa-eye mr-1"></i>Détails
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglet Produits -->
+      <div id="content-produits" class="tab-content hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
+          <!-- Produit 1 -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-drumstick-bite text-orange-600 text-2xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-semibold text-gray-800">Poulet Braisé</h4>
+                <p class="text-sm text-gray-600 mt-1">Délicieux poulet mariné et braisé</p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-blue-600 font-bold">5,500 FCFA</span>
+                  <span class="text-xs text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>Disponible
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produit 2 -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-fish text-blue-600 text-2xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-semibold text-gray-800">Poisson Grillé</h4>
+                <p class="text-sm text-gray-600 mt-1">Poisson frais grillé à la perfection</p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-blue-600 font-bold">7,000 FCFA</span>
+                  <span class="text-xs text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>Disponible
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produit 3 -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-bread-slice text-yellow-600 text-2xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-semibold text-gray-800">Attiéké Poisson</h4>
+                <p class="text-sm text-gray-600 mt-1">Attiéké accompagné de poisson frit</p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-blue-600 font-bold">4,000 FCFA</span>
+                  <span class="text-xs text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>Disponible
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produit 4 -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-pizza-slice text-red-600 text-2xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-semibold text-gray-800">Pizza Margherita</h4>
+                <p class="text-sm text-gray-600 mt-1">Pizza classique tomate-mozzarella</p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-blue-600 font-bold">5,000 FCFA</span>
+                  <span class="text-xs text-red-600">
+                    <i class="fas fa-times-circle mr-1"></i>Rupture
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produit 5 -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-leaf text-green-600 text-2xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-semibold text-gray-800">Salade Composée</h4>
+                <p class="text-sm text-gray-600 mt-1">Salade fraîche et variée</p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-blue-600 font-bold">3,500 FCFA</span>
+                  <span class="text-xs text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>Disponible
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Produit 6 -->
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+            <div class="flex items-start gap-3">
+              <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-glass-martini text-purple-600 text-2xl"></i>
+              </div>
+              <div class="flex-grow">
+                <h4 class="font-semibold text-gray-800">Jus Bissap</h4>
+                <p class="text-sm text-gray-600 mt-1">Jus d'hibiscus fait maison</p>
+                <div class="flex justify-between items-center mt-2">
+                  <span class="text-blue-600 font-bold">1,000 FCFA</span>
+                  <span class="text-xs text-green-600">
+                    <i class="fas fa-check-circle mr-1"></i>Disponible
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onglet Modifications -->
+      <div id="content-modifications" class="tab-content hidden">
+        <div class="space-y-3 max-h-96 overflow-y-auto">
+          <!-- Modification 1 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Horaires d'ouverture</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">Lun-Sam: 10h-20h</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">Lun-Dim: 9h-22h</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">28/01/2026 15:45</span>
+            </div>
+          </div>
+
+          <!-- Modification 2 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Numéro de téléphone</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">+229 97 45 67 89</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">+229 97 12 34 56</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">22/01/2026 11:20</span>
+            </div>
+          </div>
+
+          <!-- Modification 3 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Adresse entreprise</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">Cotonou, Akpakpa, Rue 234</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">Cotonou, Akpakpa, Avenue Steinmetz</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">18/01/2026 09:30</span>
+            </div>
+          </div>
+
+          <!-- Modification 4 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Type de partenariat</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">Standard</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">Premium</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">15/01/2026 14:00</span>
+            </div>
+          </div>
+
+          <!-- Modification 5 -->
+          <div class="border-l-4 border-blue-500 bg-gray-50 p-4 rounded-r-lg">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold text-gray-800">Email</p>
+                <p class="text-sm text-gray-600 mt-1">
+                  <span class="text-red-500">contact@resto-delice.bj</span>
+                  <i class="fas fa-arrow-right mx-2"></i>
+                  <span class="text-green-500">info@resto-delice.bj</span>
+                </p>
+              </div>
+              <span class="text-xs text-gray-500">10/01/2026 16:15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation de suppression -->
+{% include 'partials/modal_delete.html' %}
+
+<script>
+  // Fonction pour changer d'onglet
+  function switchTab(tabName) {
+    // Masquer tous les contenus
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.add('hidden');
+    });
+    
+    // Retirer la classe active de tous les boutons
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.classList.remove('active', 'border-blue-500', 'text-blue-600');
+      button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Afficher le contenu sélectionné
+    document.getElementById('content-' + tabName).classList.remove('hidden');
+    
+    // Activer le bouton sélectionné
+    const activeButton = document.getElementById('tab-' + tabName);
+    activeButton.classList.add('active', 'border-blue-500', 'text-blue-600');
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
+  }
+
+  // Fonction pour filtrer les commandes
+  function filterCommandes(status) {
+    const items = document.querySelectorAll('.commande-item');
+    
+    // Retirer la classe active de tous les filtres
+    document.querySelectorAll('#content-commandes .filter-btn').forEach(btn => {
+      btn.classList.remove('active', 'bg-blue-500', 'text-white');
+      btn.classList.add('bg-gray-200', 'text-gray-700');
+    });
+    
+    // Activer le filtre sélectionné
+    event.target.classList.add('active', 'bg-blue-500', 'text-white');
+    event.target.classList.remove('bg-gray-200', 'text-gray-700');
+    
+    // Filtrer les éléments
+    items.forEach(item => {
+      if (status === 'all' || item.dataset.status === status) {
+        item.style.display = 'block';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  // Fonction de confirmation de désactivation
+  function confirmDesactivate(commercialId) {
+    if (confirm('Êtes-vous sûr de vouloir désactiver ce commercial ?')) {
+      window.location.href = '/admin/desactivate-commercial/' + commercialId + '/';
+    }
+  }
+</script>
+
+{% endblock %}

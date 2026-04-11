@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashLivreur - Dashboard Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    {% include 'partials/navbar.html' %}
+
+    {% include 'partials/sidebar.html' %}
+
+ <main >
+   {% block content %}
+   <!-- Contenu spécifique à chaque page -->
+   {% endblock %}
+ </main> 
+
+ 
+
+ <script>
+// Toggle sidebar on mobile
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+const toggleFormBtn = document.getElementById('toggleFormBtn');
+const formContainer = document.getElementById('formContainer');
+const closeFormBtn = document.getElementById('closeFormBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const adminForm = document.getElementById('adminForm');
+const successMessage = document.getElementById('successMessage');
+const errorMessage = document.getElementById('errorMessage');
+let admins = [];
+
+if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('-translate-x-full');
+    });
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth < 1024 && sidebar) {
+        if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+            sidebar.classList.add('-translate-x-full');
+        }
+    }
+});
+
+// Afficher/Masquer le formulaire
+if (toggleFormBtn && formContainer) {
+    toggleFormBtn.addEventListener('click', () => {
+        formContainer.classList.toggle('hidden');
+        if (!formContainer.classList.contains('hidden')) {
+            document.getElementById('lastName').focus();
+        }
+    });
+}
+
+if (closeFormBtn && formContainer && adminForm) {
+    closeFormBtn.addEventListener('click', () => {
+        formContainer.classList.add('hidden');
+        adminForm.reset();
+    });
+}
+
+if (cancelBtn && formContainer && adminForm) {
+    cancelBtn.addEventListener('click', () => {
+        formContainer.classList.add('hidden');
+        adminForm.reset();
+    });
+}
+
+
+
+//========================= MODAL D'ÉDITION =========================
+// Ouvrir le modal
+function openEditModal() {
+    document.getElementById('editModal').classList.remove('hidden');
+}
+
+// Fermer le modal si on clique en dehors
+const modal = document.getElementById('editModal');
+
+modal.addEventListener('click', function(e) {
+    // Si l'élément cliqué est le conteneur (et non le formulaire)
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+
+// Fermer le modal
+function closeModal() {
+    document.getElementById('editModal').classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Annuler
+    document.getElementById('cancelEditBtn')?.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeModal();
+    });
+
+    // Bouton modifier (client / livreur / commercial)
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.edit-user-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+
+        document.getElementById('editUserId').value = btn.dataset.id || '';
+        document.getElementById('editNom').value = btn.dataset.nom || '';
+        document.getElementById('editPrenom').value = btn.dataset.prenom || '';
+        document.getElementById('editEmail').value = btn.dataset.email || '';
+        document.getElementById('editTelephone').value = btn.dataset.telephone || '';
+        document.getElementById('editRole').value = btn.dataset.role || '';
+        document.getElementById('editStatut').value = btn.dataset.statut || '';
+        
+
+        openEditModal();
+    });
+
+    // Soumission
+    document.getElementById('editForm')?.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const userId = document.getElementById('editUserId').value;
+        const role = document.getElementById('editRole').value;
+        const messageDiv = document.getElementById('editMessage');
+
+        const data = {
+            nom: editNom.value,
+            prenom: editPrenom.value,
+            email: editEmail.value,
+            telephone: editTelephone.value,
+            statut: editStatut.value
+        };
+
+        fetch(`/update_${role}/${userId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(r => r.json())
+        .then(r => {
+            messageDiv.classList.remove('hidden');
+            messageDiv.textContent = r.message;
+
+            if (r.success) {
+                setTimeout(() => {
+                    closeModal();
+                    location.reload();
+                }, 1200);
+            }
+        });
+    });
+});
+
+// CSRF
+function getCookie(name) {
+    let value = null;
+    document.cookie.split(';').forEach(c => {
+        c = c.trim();
+        if (c.startsWith(name + '=')) {
+            value = decodeURIComponent(c.substring(name.length + 1));
+        }
+    });
+    return value;
+}
+
+
+//========================= Détails client ==========================
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    document.getElementById('content-' + tabName).classList.remove('hidden');
+    const activeTab = document.getElementById('tab-' + tabName);
+    activeTab.classList.add('active', 'border-blue-500', 'text-blue-600');
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+}
+
+function filterCourses(status) {
+    const courses = document.querySelectorAll('.course-item');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    
+    filterBtns.forEach(btn => {
+        btn.classList.remove('active', 'bg-blue-500', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-700');
+    });
+    
+    event.target.classList.add('active', 'bg-blue-500', 'text-white');
+    event.target.classList.remove('bg-gray-200', 'text-gray-700');
+    
+    courses.forEach(course => {
+        if (status === 'all') {
+            course.style.display = 'block';
+        } else {
+            course.style.display = course.dataset.status === status ? 'block' : 'none';
+        }
+    });
+}
+
+let userIdToDesactivate = null;
+let userTypeToDesactivate = null; // "client", "livreur", "commercial"
+
+function confirmDesactivate(userId, userType) {
+    userIdToDesactivate = userId;
+    userTypeToDesactivate = userType;
+
+    // Modifier dynamiquement le texte du modal
+    const title = document.getElementById('desactivateModalTitle');
+    const text = document.getElementById('desactivateModalText');
+    title.textContent = `Confirmer la désactivation du ${userType}`;
+    text.textContent = `Êtes-vous sûr de vouloir désactiver ce ${userType} ? Cette action peut être annulée ultérieurement.`;
+
+    document.getElementById('desactivateModal').classList.remove('hidden');
+}
+
+function closeDesactivateModal() {
+    document.getElementById('desactivateModal').classList.add('hidden');
+    userIdToDesactivate = null;
+    userTypeToDesactivate = null;
+}
+
+function desactivateUser() {
+    if (userIdToDesactivate && userTypeToDesactivate) {
+        window.location.href = `/desactivate_${userTypeToDesactivate}/${userIdToDesactivate}/`;
+    }
+}
+
+// Fermer le modal si on clique en dehors
+const desactivateModal = document.getElementById('desactivateModal');
+if (desactivateModal) {
+    desactivateModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeDesactivateModal();
+        }
+    });
+}
+
+
+//========================= Recherche en direct ==========================
+
+    const URL_TEMPLATES = {
+        client: {
+            detail: "{% url 'detail_client' 0 %}",
+            activate: "{% url 'activate_client' 0 %}",
+            confirm: null
+        },
+        livreur: {
+            detail: "{% url 'detail_livreur' 0 %}",
+            activate: "{% url 'activate_livreur' 0 %}",
+            confirm: "{% url 'confirmer_partenaire' 0 %}"
+        },
+        commercial: {
+            detail: "{% url 'detail_commercial' 0 %}",
+            activate: "{% url 'activate_commercial' 0 %}",
+            confirm: "{% url 'confirmer_partenaire' 0 %}"
+        }
+    };
+
+const searchInput = document.getElementById("searchInput");
+const tableBody = document.getElementById("usersTable");
+
+
+
+let timeout = null;
+
+
+searchInput.addEventListener("keyup", function () {
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+        const query = this.value.trim();
+
+        const userType = this.dataset.userType;
+        const roleLabel = this.dataset.roleLabel;
+
+        const canEdit = this.dataset.edit === "true";
+        const canDelete = this.dataset.delete === "true";
+
+        fetch(`/live-search-users/?q=${query}&type=${userType}`)
+            .then(res => res.json())
+            .then(data => {
+                tableBody.innerHTML = "";
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                                Aucun ${roleLabel.toLowerCase()} trouvé
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                data.forEach(user => {
+
+                    const urls = URL_TEMPLATES[user.user_type];
+
+                    const detailUrl   = urls?.detail?.replace('0', user.id);
+                    const activateUrl = urls?.activate?.replace('0', user.id);
+                    const confirmUrl  = urls?.confirm?.replace('0', user.id);
+
+
+                    tableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm">#${user.id}</td>
+
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <img
+                                        src="${user.photo ?? `https://ui-avatars.com/api/?name=${user.last_name}+${user.first_name}&background=random&&background=random`}"
+                                        class="w-8 h-8 rounded-full mr-3 object-cover"
+                                    >
+                                    <span class="font-medium">${user.last_name}</span>
+                                </div>
+                            </td>
+
+                            <td class="px-6 py-4">${user.first_name}</td>
+                            <td class="px-6 py-4 text-sm">${user.email ?? "Non renseigné"}</td>
+                            <td class="px-6 py-4 text-sm">${user.telephone}</td>
+                            <td class="px-6 py-4 text-sm">${roleLabel}</td>
+
+                            <td class="px-6 py-4">
+                                ${
+                                    user.statut === 'en_attente'
+                                    ? `<span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">En attente</span>`
+                                    : user.is_active
+                                        ? `<span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">Actif</span>`
+                                        : `<span class="px-3 py-1 text-xs rounded-full bg-red-100 text-red-700">Inactif</span>`
+                                }
+                            </td>
+
+                            <td class="px-6 py-4">
+                                ${
+                                    user.statut === 'en_attente' && confirmUrl
+                                    ? `
+                                        <a href="${confirmUrl}"
+                                        class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">
+                                            Confirmer
+                                        </a>
+                                    `
+                                    : `
+                                        <div class="flex space-x-2">
+                                            <a href="${detailUrl}"
+                                            class="text-blue-600 hover:text-blue-800"
+                                            title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+                                            ${canEdit ? `
+                                                <a href="#"
+                                                class="edit-user-btn text-green-600 hover:text-green-800"
+                                                data-id="${user.id}"
+                                                data-nom="${user.last_name}"
+                                                data-prenom="${user.first_name}"
+                                                data-email="${user.email}"
+                                                data-telephone="${user.telephone}"
+                                                data-role="${user.role}"
+                                                data-statut="${user.statut}">
+                                                <i class="fas fa-edit"></i>
+                                                </a>
+                                            ` : ``}
+
+                                            ${canDelete ? `
+                                                ${
+                                                    user.is_active
+                                                    ? `
+                                                        <a onclick="confirmDesactivate(${user.id}, '${user.user_type}')"
+                                                        class="text-red-600 hover:text-red-800"
+                                                        title="Bloquer">
+                                                            <i class="fas fa-ban"></i>
+                                                        </a>
+                                                    `
+                                                    : `
+                                                        <a
+                                                        href="${activateUrl}"
+                                                        class="text-green-600 hover:text-gray-800"
+                                                        title="Débloquer">
+                                                            <i class="fas fa-check-circle"></i>
+                                                        </a>
+                                                    `
+                                                }
+                                            ` : ``}
+                                        </div>
+                                    `
+                                }
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }, 300);
+});
+
+
+
+
+
+    </script>
+
+    {% include 'includes/modal_photo_profil.html' %}
+</body>
+</html>    

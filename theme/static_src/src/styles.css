@@ -1,0 +1,60 @@
+/* @import "tailwindcss";
+@plugin "daisyui";
+
+/**
+  * A catch-all path to Django template files, JavaScript, and Python files
+  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
+  *
+  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
+  * the scope of this path.
+  */
+/* @source "../../../**//*/*/
+
+ 
+
+/* Style pour partenaire.html
+        .bg-hero {
+            background-image: linear-gradient(135deg, #f97316, #ec6e13), 
+                              url("data:image/svg+xml,%3Csvg width='400' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cpattern id='business-pattern' x='0' y='0' width='100' height='100' patternUnits='userSpaceOnUse'%3E%3Crect width='100' height='100' fill='%23f97316'/%3E%3Ccircle cx='20' cy='20' r='2' fill='%23ea580c'/%3E%3Ccircle cx='80' cy='30' r='1.5' fill='%23fb923c'/%3E%3Ccircle cx='50' cy='70' r='1' fill='%23fdba74'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='400' height='300' fill='url(%23business-pattern)'/%3E%3Cg transform='translate(100,50)'%3E%3C!-- Silhouette livreur --%3E%3Cellipse cx='50' cy='200' rx='15' ry='8' fill='%23ffffff' opacity='0.3'/%3E%3Crect x='45' y='180' width='10' height='20' rx='2' fill='%23ffffff' opacity='0.7'/%3E%3Ccircle cx='50' cy='170' r='8' fill='%23ffffff' opacity='0.7'/%3E%3Crect x='42' y='175' width='16' height='10' rx='2' fill='%23ffffff' opacity='0.6'/%3E%3C!-- Silhouette CEO --%3E%3Cellipse cx='150' cy='200' rx='15' ry='8' fill='%23ffffff' opacity='0.3'/%3E%3Crect x='145' y='180' width='10' height='20' rx='2' fill='%23ffffff' opacity='0.7'/%3E%3Ccircle cx='150' cy='170' r='8' fill='%23ffffff' opacity='0.7'/%3E%3Crect x='142' y='175' width='16' height='12' rx='2' fill='%23ffffff' opacity='0.6'/%3E%3C!-- Poignée de main symbolique --%3E%3Cpath d='M65 185 Q100 180 135 185' stroke='%23ffffff' stroke-width='3' fill='none' opacity='0.8'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+            backdrop-filter: blur(2px);
+        }
+        
+        .form-container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .input-focus:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+        
+        .checkbox-custom:checked {
+            background-color: #f97316;
+            border-color: #f97316;
+        }
+        
+        .partner-description {
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    
+         /* Style pour le scroll fluide    */
+
+        /* html {
+            scroll-behavior: smooth;
+        }
+
+   */  

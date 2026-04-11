@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Commercial - DeliveryPro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-attente {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .badge-en_cours {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .badge-livree {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .badge-annulee {
+            background-color: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .progress-bar-container {
+            background-color: #E5E7EB;
+            border-radius: 9999px;
+            height: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: #F9FAFB;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #EF4444;
+            color: white;
+            border-radius: 9999px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Sidebar -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gradient-to-b from-blue-600 to-blue-800 text-white flex-shrink-0">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-shipping-fast mr-3"></i>
+                    DeliveryPro
+                </h1>
+                <p class="text-blue-200 text-sm mt-1">Espace Commercial</p>
+            </div>
+            
+            <nav class="mt-6">
+                <a href="#" class="flex items-center px-6 py-3 bg-blue-700 border-l-4 border-white">
+                    <i class="fas fa-chart-line mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-box mr-3"></i>
+                    Commandes
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-users mr-3"></i>
+                    Clients
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-motorcycle mr-3"></i>
+                    Livreurs
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-file-export mr-3"></i>
+                    Rapports
+                </a>
+            </nav>
+            
+            <div class="absolute bottom-0 w-64 p-6 border-t border-blue-700">
+                <div class="flex items-center">
+                    <img src="https://ui-avatars.com/api/?name=Jean+Dupont&background=3B82F6&color=fff" class="w-10 h-10 rounded-full mr-3" alt="Avatar">
+                    <div>
+                        <p class="font-semibold">Jean Dupont</p>
+                        <p class="text-xs text-blue-200">Commercial</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-8 py-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Tableau de bord</h2>
+                        <p class="text-gray-500 text-sm mt-1">
+                            <i class="fas fa-calendar-day mr-1"></i>
+                            Aujourd'hui, le <span id="currentDate"></span>
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="notification-badge">3</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-download mr-2"></i>
+                                Exporter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="flex-1 overflow-y-auto p-8">
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+                    <!-- Commandes du jour -->
+                    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 animate-slide-in">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Commandes du jour</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-2">47</h3>
+                                <p class="text-green-600 text-xs mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    +12% vs hier
+                                </p>
+                            </div>
+                            <div class="bg-blue-100 p-4 rounded-full">
+                                <i class="fas fa-box text-blue-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CA du jour -->
+                    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 animate-slide-in" style="animation-delay: 0.1s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">CA du jour</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-2">3 547€</h3>
+                                <p class="text-green-600 text-xs mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    +8%
+                                </p>
+                            </div>
+                            <div class="bg-green-100 p-4 rounded-full">
+                                <i class="fas fa-euro-sign text-green-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CA du mois -->
+                    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 animate-slide-in" style="animation-delay: 0.2s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">CA du mois</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-2">52 340€</h3>
+                                <p class="text-green-600 text-xs mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    +15%
+                                </p>
+                            </div>
+                            <div class="bg-purple-100 p-4 rounded-full">
+                                <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nouveaux clients -->
+                    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500 animate-slide-in" style="animation-delay: 0.3s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Nouveaux clients</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-2">12</h3>
+                                <p class="text-green-600 text-xs mt-2 flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i>
+                                    +5
+                                </p>
+                            </div>
+                            <div class="bg-yellow-100 p-4 rounded-full">
+                                <i class="fas fa-user-plus text-yellow-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Livreurs actifs -->
+                    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-500 animate-slide-in" style="animation-delay: 0.4s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Livreurs actifs</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-2">23</h3>
+                                <p class="text-gray-500 text-xs mt-2">
+                                    sur 28 total
+                                </p>
+                            </div>
+                            <div class="bg-indigo-100 p-4 rounded-full">
+                                <i class="fas fa-motorcycle text-indigo-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Annulations -->
+                    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500 animate-slide-in" style="animation-delay: 0.5s">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm font-medium">Annulations</p>
+                                <h3 class="text-3xl font-bold text-gray-800 mt-2">3</h3>
+                                <p class="text-red-600 text-xs mt-2 flex items-center">
+                                    <i class="fas fa-arrow-down mr-1"></i>
+                                    6.4%
+                                </p>
+                            </div>
+                            <div class="bg-red-100 p-4 rounded-full">
+                                <i class="fas fa-times-circle text-red-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance personnelle et graphiques -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Ma Performance -->
+                    <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                            Ma Performance
+                        </h3>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Objectif mensuel</span>
+                                <span class="text-sm font-bold text-gray-800">78%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: 78%;">
+                                    78%
+                                </div>
+                            </div>
+                            <div class="flex justify-between mt-2">
+                                <span class="text-xs text-gray-500">52 340€</span>
+                                <span class="text-xs text-gray-500">67 000€</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm text-gray-600">Mes commandes</p>
+                                    <p class="text-2xl font-bold text-blue-600">156</p>
+                                </div>
+                                <i class="fas fa-box-open text-blue-600 text-3xl"></i>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm text-gray-600">Mon CA</p>
+                                    <p class="text-2xl font-bold text-green-600">52 340€</p>
+                                </div>
+                                <i class="fas fa-dollar-sign text-green-600 text-3xl"></i>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm text-gray-600">Taux conversion</p>
+                                    <p class="text-2xl font-bold text-purple-600">62%</p>
+                                </div>
+                                <i class="fas fa-percentage text-purple-600 text-3xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graphiques -->
+                    <div class="bg-white rounded-xl shadow-md p-6 lg:col-span-2">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-xl font-bold text-gray-800">Évolution des commandes</h3>
+                            <div class="flex space-x-2">
+                                <button class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">7 jours</button>
+                                <button class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">30 jours</button>
+                            </div>
+                        </div>
+                        <canvas id="commandesChart" height="80"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top performers -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Top 5 Clients -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            Top 5 Clients
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-white rounded-lg border border-yellow-200">
+                                <div class="flex items-center">
+                                    <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">1</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Restaurant Le Gourmet</p>
+                                        <p class="text-xs text-gray-500">45 commandes</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-gray-800">8 450€</p>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="bg-gray-400 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">2</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Pizzeria Bella</p>
+                                        <p class="text-xs text-gray-500">38 commandes</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-gray-800">6 780€</p>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="bg-orange-400 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">3</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Sushi Paradise</p>
+                                        <p class="text-xs text-gray-500">32 commandes</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-gray-800">5 340€</p>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="bg-gray-300 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">4</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Burger King Premium</p>
+                                        <p class="text-xs text-gray-500">28 commandes</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-gray-800">4 890€</p>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <span class="bg-gray-300 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3">5</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Café Croissant</p>
+                                        <p class="text-xs text-gray-500">25 commandes</p>
+                                    </div>
+                                </div>
+                                <p class="font-bold text-gray-800">3 670€</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top 5 Livreurs -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-medal text-blue-500 mr-2"></i>
+                            Top 5 Livreurs
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-white rounded-lg border border-blue-200">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Mohamed+Ali&background=3B82F6&color=fff" class="w-10 h-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Mohamed Ali</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                            4.9 (156 avis)
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-800">127</p>
+                                    <p class="text-xs text-gray-500">livraisons</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Sophie+Martin&background=8B5CF6&color=fff" class="w-10 h-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Sophie Martin</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                            4.8 (143 avis)
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-800">115</p>
+                                    <p class="text-xs text-gray-500">livraisons</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Karim+Ben&background=EF4444&color=fff" class="w-10 h-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Karim Ben</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                            4.7 (128 avis)
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-800">108</p>
+                                    <p class="text-xs text-gray-500">livraisons</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Laura+Dupuis&background=10B981&color=fff" class="w-10 h-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Laura Dupuis</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                            4.8 (135 avis)
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-800">102</p>
+                                    <p class="text-xs text-gray-500">livraisons</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center">
+                                    <img src="https://ui-avatars.com/api/?name=Ahmed+Salah&background=F59E0B&color=fff" class="w-10 h-10 rounded-full mr-3" alt="">
+                                    <div>
+                                        <p class="font-semibold text-gray-800">Ahmed Salah</p>
+                                        <p class="text-xs text-gray-500">
+                                            <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                            4.6 (118 avis)
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-bold text-gray-800">98</p>
+                                    <p class="text-xs text-gray-500">livraisons</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tableau des commandes récentes -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                                <i class="fas fa-list-ul text-blue-600 mr-2"></i>
+                                Commandes récentes
+                            </h3>
+                            <div class="flex items-center space-x-3">
+                                <div class="relative">
+                                    <input type="text" placeholder="Rechercher..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>Tous les statuts</option>
+                                    <option>En attente</option>
+                                    <option>En cours</option>
+                                    <option>Livrée</option>
+                                    <option>Annulée</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full table-hover">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Livreur</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Montant</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Statut</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date/Heure</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-blue-600">#CMD-2451</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Restaurant+Gourmet&background=random" class="w-8 h-8 rounded-full mr-3" alt="">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Restaurant Le Gourmet</p>
+                                                <p class="text-xs text-gray-500">+33 6 12 34 56 78</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Mohamed+Ali&background=3B82F6&color=fff" class="w-8 h-8 rounded-full mr-2" alt="">
+                                            <span class="text-sm text-gray-900">Mohamed Ali</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">145.50€</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-en_cours">
+                                            <i class="fas fa-motorcycle mr-1"></i>
+                                            En cours
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div>06/02/2026</div>
+                                        <div class="text-xs text-gray-400">14:23</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Appeler">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                            <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Assigner livreur">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-blue-600">#CMD-2450</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Pizzeria+Bella&background=random" class="w-8 h-8 rounded-full mr-3" alt="">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Pizzeria Bella</p>
+                                                <p class="text-xs text-gray-500">+33 6 98 76 54 32</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Sophie+Martin&background=8B5CF6&color=fff" class="w-8 h-8 rounded-full mr-2" alt="">
+                                            <span class="text-sm text-gray-900">Sophie Martin</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">87.00€</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-livree">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Livrée
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div>06/02/2026</div>
+                                        <div class="text-xs text-gray-400">13:45</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Appeler">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                            <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Assigner livreur">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-blue-600">#CMD-2449</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Sushi+Paradise&background=random" class="w-8 h-8 rounded-full mr-3" alt="">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Sushi Paradise</p>
+                                                <p class="text-xs text-gray-500">+33 6 11 22 33 44</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm text-gray-400 italic">Non assigné</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">234.80€</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-attente">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            En attente
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div>06/02/2026</div>
+                                        <div class="text-xs text-gray-400">14:50</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Appeler">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                            <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Assigner livreur">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-blue-600">#CMD-2448</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Burger+Premium&background=random" class="w-8 h-8 rounded-full mr-3" alt="">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Burger King Premium</p>
+                                                <p class="text-xs text-gray-500">+33 6 55 66 77 88</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Karim+Ben&background=EF4444&color=fff" class="w-8 h-8 rounded-full mr-2" alt="">
+                                            <span class="text-sm text-gray-900">Karim Ben</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">56.20€</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-livree">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Livrée
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div>06/02/2026</div>
+                                        <div class="text-xs text-gray-400">12:30</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Appeler">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                            <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Assigner livreur">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-blue-600">#CMD-2447</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Cafe+Croissant&background=random" class="w-8 h-8 rounded-full mr-3" alt="">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Café Croissant</p>
+                                                <p class="text-xs text-gray-500">+33 6 99 88 77 66</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Laura+Dupuis&background=10B981&color=fff" class="w-8 h-8 rounded-full mr-2" alt="">
+                                            <span class="text-sm text-gray-900">Laura Dupuis</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">23.40€</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-annulee">
+                                            <i class="fas fa-times-circle mr-1"></i>
+                                            Annulée
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div>06/02/2026</div>
+                                        <div class="text-xs text-gray-400">11:15</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Appeler">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                            <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Assigner livreur">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-blue-600">#CMD-2446</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Tacos+Express&background=random" class="w-8 h-8 rounded-full mr-3" alt="">
+                                            <div>
+                                                <p class="text-sm font-medium text-gray-900">Tacos Express</p>
+                                                <p class="text-xs text-gray-500">+33 6 44 33 22 11</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://ui-avatars.com/api/?name=Ahmed+Salah&background=F59E0B&color=fff" class="w-8 h-8 rounded-full mr-2" alt="">
+                                            <span class="text-sm text-gray-900">Ahmed Salah</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="text-sm font-bold text-gray-900">68.90€</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-en_cours">
+                                            <i class="fas fa-motorcycle mr-1"></i>
+                                            En cours
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <div>06/02/2026</div>
+                                        <div class="text-xs text-gray-400">13:20</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        <div class="flex space-x-2">
+                                            <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Appeler">
+                                                <i class="fas fa-phone"></i>
+                                            </button>
+                                            <button class="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors" title="Assigner livreur">
+                                                <i class="fas fa-user-tag"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            Affichage de <span class="font-semibold">1</span> à <span class="font-semibold">6</span> sur <span class="font-semibold">47</span> commandes
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">1</button>
+                            <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">2</button>
+                            <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">3</button>
+                            <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm hover:bg-gray-100 transition-colors">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Date actuelle
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('fr-FR', dateOptions);
+
+        // Graphique Chart.js
+        const ctx = document.getElementById('commandesChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'Commandes',
+                    data: [32, 38, 45, 42, 51, 47, 47],
+                    borderColor: '#3B82F6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#3B82F6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }, {
+                    label: 'Chiffre d\'affaires (x100€)',
+                    data: [28, 34, 40, 38, 47, 42, 35],
+                    borderColor: '#8B5CF6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        borderColor: '#3B82F6',
+                        borderWidth: 1,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+
+        // Animation au chargement
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.animate-slide-in');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                }, index * 100);
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %} Nos Tarifs - Flash Livreur {% endblock %}
+
+{% block content %}
+
+    <section class="max-w-6xl w-full mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-5xl font-bold text-black mb-4">
+                Téléchargez l'application pour commencer 
+            </h2>
+            <p class="text-gray-600 text-lg">
+                Trois étapes simples pour démarrer votre course
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Étape 1 -->
+            <div class="step-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-gray-500 transition-all duration-300">
+                <div class="step-number w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <span class="text-white text-2xl font-bold">1</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">
+                    Indiquez votre destination
+                </h3>
+                <p class="text-gray-400 leading-relaxed">
+                    Entrez votre adresse de départ et d'arrivée. Notre système calcule automatiquement le meilleur itinéraire pour vous.
+                </p>
+            </div>
+            
+            <!-- Étape 2 -->
+            <div class="step-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-gray-500 transition-all duration-300">
+                <div class="step-number w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <span class="text-white text-2xl font-bold">2</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">
+                    Choisissez votre véhicule de livraison
+                </h3>
+                <p class="text-gray-400 leading-relaxed">
+                    Sélectionnez le type de véhicule adapté à vos besoins : économique, confort ou premium. Consultez les tarifs en temps réel.
+                </p>
+            </div>
+            
+            <!-- Étape 3 -->
+            <div class="step-card bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700 hover:border-gray-500 transition-all duration-300">
+                <div class="step-number w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <span class="text-white text-2xl font-bold">3</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">
+                    Confirmez et recevez
+                </h3>
+                <p class="text-gray-400 leading-relaxed">
+                    Réservez maintenant et suivez votre livreur en direct jusqu'à votre destination.
+                </p>
+            </div>
+        </div>
+        
+    </section>
+
+    <!-- Section Tarifs -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- En-tête de section -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                    Nos Tarifs Transparents
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Des prix justes et transparents pour tous vos besoins de livraison. 
+                    Pas de frais cachés, que des tarifs clairs.
+                </p>
+            </div>
+
+            <!-- Grid des tarifs -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Plan Express -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-orange-200 transition-all duration-300">
+                    <div class="text-center mb-8">
+                        <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-zap text-orange-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Express</h3>
+                        <p class="text-gray-600">Livraison immédiate</p>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <div class="text-4xl font-bold text-gray-900 mb-2">
+                            à partir de 500f
+                        </div>
+                        <p class="text-gray-600">+ frais de distance</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Prise en charge immédiate</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Livraison en 30-60 minutes</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Suivi en temps réel</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Support client</span>
+                        </li>
+                    </ul>
+
+                    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition-colors duration-300">
+                        Choisir Express
+                    </button>
+                </div>
+
+                <!-- Plan Programmé -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-2 border-orange-500 relative transform scale-105">
+                    <!-- Badge populaire -->
+                    <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                            Populaire
+                        </span>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-calendar text-orange-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Programmé</h3>
+                        <p class="text-gray-600">Planification à l'avance</p>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <div class="text-4xl font-bold text-gray-900 mb-2">
+                            à partir de 200f
+                        </div>
+                        <p class="text-gray-600">+ frais de distance</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Planification flexible</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Tarif préférentiel</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Suivi en temps réel</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Support client prioritaire</span>
+                        </li>
+                    </ul>
+
+                    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold transition-colors duration-300">
+                        Choisir Programmé
+                    </button>
+                </div>
+
+                <!-- Plan Professionnel -->
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-2 border-transparent hover:border-orange-200 transition-all duration-300">
+                    <div class="text-center mb-8">
+                        <div class="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-briefcase text-orange-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Professionnel</h3>
+                        <p class="text-gray-600">Pour les entreprises</p>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <div class="text-4xl font-bold text-gray-900 mb-2">
+                          Sur mesure
+                        </div>
+                        <p class="text-gray-600">Devis personnalisé</p>
+                    </div>
+
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Tarifs dégressifs</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Gestionnaire dédié</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">Facturation mensuelle</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-orange-500 mr-3"></i>
+                            <span class="text-gray-700">API d'intégration</span>
+                        </li>
+                    </ul>
+
+                    <button class="w-full bg-gray-800 hover:bg-gray-900 text-white py-3 rounded-lg font-semibold transition-colors duration-300">
+                        Nous contacter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Information complémentaire -->
+            <div class="mt-12 bg-orange-50 rounded-2xl p-8">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">
+                        Comment calculons-nous nos tarifs ?
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-8 mt-8">
+                        <div class="text-center">
+                            <div class="bg-white w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-route text-orange-500"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Distance</h4>
+                            <p class="text-gray-600 text-sm">100 fcfa par kilomètre</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-white w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-weight-hanging text-orange-500"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Poids</h4>
+                            <p class="text-gray-600 text-sm">+400 fcfa si > 10kg</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="bg-white w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-clock text-orange-500"></i>
+                            </div>
+                            <h4 class="font-semibold text-gray-900 mb-2">Urgence</h4>
+                            <p class="text-gray-600 text-sm">+50% en heures de pointe</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+
+{% endblock %}

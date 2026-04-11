@@ -1,0 +1,771 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Mode Livraison — {{ course.numero_course }}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --primary-bg: #f0f4f8;
+        --accent:     #0891b2;
+        --accent-dark:#0369a1;
+        --success:    #16a34a;
+        --danger:     #dc2626;
+        --warning:    #b45309;
+        --surface:    #ffffff;
+        --border:     #e2e8f0;
+        --text-main:  #0f172a;
+        --text-muted: #64748b;
+        --text-sub:   #94a3b8;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--primary-bg);
+        color: var(--text-main);
+        height: 100dvh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      h1, h2, .font-display { font-family: "Syne", sans-serif; }
+
+      /* ── LAYOUT ── */
+      #app {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        overflow: hidden;
+        gap: 0;
+      }
+
+      /* ── HEADER ── */
+      #header {
+        flex-shrink: 0;
+        margin: 12px 12px 0;
+        background: rgba(255,255,255,0.94);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 12px rgba(15,23,42,0.06);
+        z-index: 10;
+      }
+
+      /* ── MAP ── */
+      #map-wrapper {
+        flex: 1 1 auto;
+        margin: 10px 12px 0;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 12px rgba(15,23,42,0.06);
+        min-height: 0;
+        position: relative;
+      }
+
+      #map { width: 100%; height: 100%; }
+
+      /* map overlay btn */
+      #recenter-btn {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        z-index: 1000;
+        width: 38px; height: 38px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(15,23,42,0.12);
+        transition: background 0.15s;
+      }
+      #recenter-btn:hover { background: #f8fafc; }
+
+      /* ── BOTTOM PANEL ── */
+      #bottom-panel {
+        flex-shrink: 0;
+        margin: 10px 12px 12px;
+        background: rgba(255,255,255,0.94);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 2px 12px rgba(15,23,42,0.06);
+        overflow: hidden;
+      }
+
+      /* tabs */
+      #tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 11px 8px;
+        background: none;
+        border: none;
+        font-family: "Syne", sans-serif;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.15s, background 0.15s;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+      }
+      .tab-btn.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        background: rgba(8,145,178,0.04);
+      }
+
+      /* tab content */
+      .tab-pane { display: none; padding: 14px 16px 16px; }
+      .tab-pane.active { display: block; }
+
+      /* ── CARDS ── */
+      .info-row {
+        display: flex; gap: 10px; align-items: flex-start;
+        padding: 8px 0;
+      }
+      .info-row + .info-row { border-top: 1px solid var(--border); }
+      .info-icon { font-size: 17px; flex-shrink: 0; margin-top: 1px; }
+
+      .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .stat-card {
+        background: var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+      }
+      .stat-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+      .stat-value { font-size: 13px; font-weight: 700; font-family: monospace; color: var(--text-main); }
+
+      /* steps */
+      .step {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: background 0.15s, border-color 0.15s;
+        margin-bottom: 6px;
+      }
+      .step:last-child { margin-bottom: 0; }
+      .step:hover { background: rgba(15,23,42,0.04); }
+      .step.active {
+        background: rgba(8,145,178,0.08);
+        border-color: rgba(8,145,178,0.25);
+      }
+      .step-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+      /* buttons */
+      .btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; border: none; cursor: pointer;
+        border-radius: 13px; padding: 13px 24px;
+        font-family: "Syne", sans-serif; font-size: 14px; font-weight: 700;
+        transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+      }
+      .btn:active { transform: scale(0.97); }
+      .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #0891b2, #0369a1);
+        color: #fff;
+        box-shadow: 0 4px 18px rgba(8,145,178,0.28);
+      }
+      .btn-primary:not(:disabled):hover { box-shadow: 0 6px 24px rgba(8,145,178,0.38); transform: translateY(-1px); }
+
+      .btn-success {
+        background: linear-gradient(135deg, #16a34a, #15803d);
+        color: #fff;
+        box-shadow: 0 4px 18px rgba(22,163,74,0.25);
+      }
+      .btn-success:not(:disabled):hover { box-shadow: 0 6px 24px rgba(22,163,74,0.35); transform: translateY(-1px); }
+
+      .btn-outline-danger {
+        background: rgba(239,68,68,0.07);
+        border: 1px solid rgba(239,68,68,0.22);
+        color: var(--danger);
+      }
+
+      .btn-stack { display: flex; flex-direction: column; gap: 8px; }
+
+      /* GPS badge */
+      .gps-badge {
+        display: flex; align-items: center; gap: 8px;
+        padding: 7px 13px;
+        border-radius: 10px;
+        font-size: 12px; font-weight: 600;
+      }
+      .gps-waiting { background: rgba(180,83,9,0.08); border: 1px solid rgba(180,83,9,0.22); color: var(--warning); }
+      .gps-on      { background: rgba(8,145,178,0.08); border: 1px solid rgba(8,145,178,0.25); color: var(--accent); }
+      .gps-off     { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.22); color: var(--danger); }
+      .gps-dot     { width: 8px; height: 8px; border-radius: 50%; }
+      .pulse       { animation: pulse 1.2s ease-in-out infinite; }
+      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+      /* sync bar */
+      #sync-bar {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 16px;
+        border-top: 1px solid var(--border);
+        font-size: 12px; color: var(--text-muted);
+      }
+      #sync-bar strong { color: var(--text-main); }
+
+      /* distance badge on map */
+      #dist-badge {
+        position: absolute;
+        top: 12px; left: 12px;
+        z-index: 1000;
+        background: rgba(255,255,255,0.95);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 7px 12px;
+        font-size: 13px; font-weight: 700;
+        font-family: "Syne", sans-serif;
+        color: var(--text-main);
+        box-shadow: 0 2px 10px rgba(15,23,42,0.1);
+        display: none;
+      }
+
+      /* Toast */
+      #toast {
+        position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+        background: #0f172a; color: #fff;
+        padding: 10px 20px; border-radius: 12px;
+        font-size: 13px; font-weight: 500;
+        z-index: 9999; opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+      }
+      #toast.show { opacity: 1; }
+
+      /* desktop layout */
+      @media (min-width: 768px) {
+        #app { flex-direction: row; flex-wrap: wrap; padding: 16px; gap: 16px; }
+        #header { margin: 0; flex: 0 0 100%; border-radius: 16px; }
+        #map-wrapper { flex: 1 1 auto; margin: 0; min-height: 0; height: calc(100dvh - 80px - 32px); }
+        #bottom-panel {
+          flex: 0 0 320px; margin: 0;
+          display: flex; flex-direction: column;
+          height: calc(100dvh - 80px - 32px);
+          overflow-y: auto;
+        }
+        #tabs { display: none; }
+        .tab-pane { display: block !important; }
+        #panel-content { flex: 1; overflow-y: auto; }
+      }
+
+      /* Leaflet overrides */
+      .leaflet-control-zoom { border: 1px solid var(--border) !important; border-radius: 10px !important; overflow: hidden; }
+      .leaflet-control-zoom a { font-family: "Syne", sans-serif !important; }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- ── HEADER ── -->
+      <header id="header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <a href="{% url 'livreur_dashboard' %}"
+            style="width:34px;height:34px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:background 0.15s;"
+            onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </a>
+          <div>
+            <p style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);font-family:'Syne',sans-serif;font-weight:700;">Mode Livraison</p>
+            <h1 style="font-size:16px;font-weight:800;color:var(--text-main);margin-top:1px;">{{ course.numero_course }}</h1>
+          </div>
+        </div>
+        <div id="gps-badge" class="gps-badge gps-waiting">
+          <span class="gps-dot pulse" style="background:var(--warning);"></span>
+          <span id="gps-text">GPS en attente</span>
+        </div>
+      </header>
+
+      <!-- ── MAP ── -->
+      <div id="map-wrapper">
+        <div id="map"></div>
+        <div id="dist-badge">📍 <span id="dist-text">—</span></div>
+        <button id="recenter-btn" title="Recentrer" onclick="recenterMap()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ── BOTTOM PANEL ── -->
+      <div id="bottom-panel">
+        <!-- Tabs mobile -->
+        <div id="tabs">
+          <button class="tab-btn active" data-tab="mission">📦 Mission</button>
+          <button class="tab-btn" data-tab="gps">📡 GPS</button>
+          <button class="tab-btn" data-tab="etat">🚦 État</button>
+        </div>
+
+        <div id="panel-content">
+          <!-- Tab Mission -->
+          <div class="tab-pane active" id="tab-mission">
+            <p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;">Mission</p>
+            <div class="info-row">
+              <span class="info-icon">📦</span>
+              <div>
+                <p style="font-size:11px;color:var(--text-muted);">Retirer chez</p>
+                <p style="font-size:13px;font-weight:600;">{{ course.lieu_depart }}</p>
+              </div>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">📍</span>
+              <div>
+                <p style="font-size:11px;color:var(--text-muted);">Livrer à</p>
+                <p style="font-size:13px;font-weight:600;">{{ course.lieu_arrivee }}</p>
+              </div>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">👤</span>
+              <div>
+                <p style="font-size:11px;color:var(--text-muted);">Destinataire</p>
+                <p style="font-size:13px;font-weight:600;">{{ course.nom_destinataire }}</p>
+                <p style="font-size:12px;color:var(--text-sub);">{{ course.telephone_destinataire }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab GPS -->
+          <div class="tab-pane" id="tab-gps">
+            <p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;">Position GPS</p>
+            <div class="stat-grid" style="margin-bottom:12px;">
+              <div class="stat-card">
+                <p class="stat-label">Latitude</p>
+                <p class="stat-value" id="lat-display">—</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-label">Longitude</p>
+                <p class="stat-value" id="lng-display">—</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-label">Précision</p>
+                <p class="stat-value" id="acc-display">—</p>
+              </div>
+              <div class="stat-card">
+                <p class="stat-label">Distance</p>
+                <p class="stat-value" id="dist-display">—</p>
+              </div>
+            </div>
+            <p style="font-size:11px;text-align:center;color:var(--text-sub);">Envoi auto toutes les <strong style="color:var(--text-main);">3 s</strong></p>
+          </div>
+
+          <!-- Tab État -->
+          <div class="tab-pane" id="tab-etat">
+            <p style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;">État de la course</p>
+
+            <div id="etat-steps" style="margin-bottom:12px;">
+              <div class="step {% if course.etat == 'enroute' %}active{% endif %}" data-etat="enroute">
+                <div class="step-dot" style="background:#ea580c;"></div>
+                <div>
+                  <p style="font-size:13px;font-weight:600;">En route vers client</p>
+                  <p style="font-size:11px;color:var(--text-muted);">Je récupère le colis</p>
+                </div>
+              </div>
+              <div class="step {% if course.etat == 'encours' %}active{% endif %}" data-etat="encours">
+                <div class="step-dot" style="background:#0891b2;"></div>
+                <div>
+                  <p style="font-size:13px;font-weight:600;">En cours de livraison</p>
+                  <p style="font-size:11px;color:var(--text-muted);">Je livre le colis</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-stack">
+              <button class="btn btn-success" id="btn-livre" onclick="marquerLivre()">✅ Marquer comme livré</button>
+              <button class="btn btn-primary" id="btn-gps" onclick="activerGPS()">📡 Activer le GPS</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync bar -->
+        <div id="sync-bar">
+          <span>🔄</span>
+          <span>Dernière synchro : <strong id="last-sync">—</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+    // ══════════════════════════════════════════════════════
+    //  CONFIG
+    // ══════════════════════════════════════════════════════
+    const COURSE_ID    = {{ course.id }};
+    const UPDATE_URL   = "{% url 'tracking:update_position' course.id %}";
+    const ETAT_URL     = "{% url 'tracking:update_etat' course.id %}";
+    const CSRF_TOKEN   = "{{ csrf_token }}";
+    const SEND_INTERVAL = 3000;
+
+    // OpenRouteService — remplacez par votre clé API ORS
+    const ORS_API_KEY  = "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjE5ZGI4YzNjNjM0MDQ4MmY5MmYxYWRlODljNzQwMGVjIiwiaCI6Im11cm11cjY0In0=";
+    const ORS_URL      = "https://api.openrouteservice.org/v2/directions/driving-car/geojson";
+
+    const LAT_DEPART  = parseFloat("{{ course.latitude_depart|default:'6.3929' }}");
+    const LNG_DEPART  = parseFloat("{{ course.longitude_depart|default:'2.3658' }}");
+    const LAT_ARRIVEE = parseFloat("{{ course.latitude_arrivee|default:'6.3791' }}");
+    const LNG_ARRIVEE = parseFloat("{{ course.longitude_arrivee|default:'2.3867' }}");
+
+    let watchId      = null;
+    let sendTimer    = null;
+    let currentLat   = null;
+    let currentLng   = null;
+    let livreurMarker = null;
+    let routeLayer   = null;
+    let gpsActif     = false;
+
+    // ══════════════════════════════════════════════════════
+    //  CARTE — tuiles Voyager (proches Google Maps)
+    // ══════════════════════════════════════════════════════
+    const map = L.map('map', { zoomControl: false, attributionControl: true })
+      .setView([LAT_ARRIVEE, LNG_ARRIVEE], 14);
+
+    // CartoDB Voyager : verts prairies, bleu océan, routes bien lisibles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">CARTO</a>',
+      maxZoom: 20,
+      subdomains: 'abcd'
+    }).addTo(map);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // ─ Marker destination ────────────────────────────────
+    const iconDest = L.divIcon({
+      className: '',
+      html: `<div style="position:relative;">
+        <div style="width:22px;height:22px;border-radius:50%;background:#16a34a;border:3px solid #fff;box-shadow:0 3px 10px rgba(22,163,74,0.45);"></div>
+        <div style="position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap;font-family:'Syne',sans-serif;">DEST</div>
+      </div>`,
+      iconSize: [22, 36], iconAnchor: [11, 36]
+    });
+    L.marker([LAT_ARRIVEE, LNG_ARRIVEE], { icon: iconDest })
+      .addTo(map)
+      .bindPopup(`📍 <strong>{{ course.lieu_arrivee }}</strong>`);
+
+    // ─ Marker départ ─────────────────────────────────────
+    const iconDepart = L.divIcon({
+      className: '',
+      html: `<div style="position:relative;">
+        <div style="width:18px;height:18px;border-radius:50%;background:#ea580c;border:3px solid #fff;box-shadow:0 3px 10px rgba(234,88,12,0.4);"></div>
+        <div style="position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);background:#ea580c;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap;font-family:'Syne',sans-serif;">DÉPART</div>
+      </div>`,
+      iconSize: [18, 32], iconAnchor: [9, 32]
+    });
+    L.marker([LAT_DEPART, LNG_DEPART], { icon: iconDepart })
+      .addTo(map)
+      .bindPopup(`📦 <strong>{{ course.lieu_depart }}</strong>`);
+
+    // ─ Icon livreur ──────────────────────────────────────
+    const iconLivreur = L.divIcon({
+      className: '',
+      html: `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#0369a1);border:3px solid #fff;box-shadow:0 4px 14px rgba(8,145,178,0.45);display:flex;align-items:center;justify-content:center;font-size:18px;">🛵</div>`,
+      iconSize: [40, 40], iconAnchor: [20, 20]
+    });
+
+    function recenterMap() {
+      if (currentLat && currentLng) {
+        map.setView([currentLat, currentLng], 15, { animate: true });
+      } else {
+        map.setView([LAT_ARRIVEE, LNG_ARRIVEE], 14, { animate: true });
+      }
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  OPENROUTESERVICE — itinéraire
+    // ══════════════════════════════════════════════════════
+    async function tracerItineraire(fromLat, fromLng, toLat, toLng) {
+      // Retire l'ancienne trace
+      if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+
+      try {
+        const resp = await fetch(ORS_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': ORS_API_KEY
+          },
+          body: JSON.stringify({
+            coordinates: [[fromLng, fromLat], [toLng, toLat]],
+            units: 'km'
+          })
+        });
+
+        if (!resp.ok) throw new Error(`ORS HTTP ${resp.status}`);
+        const data = await resp.json();
+
+        routeLayer = L.geoJSON(data, {
+          style: {
+            color: '#0891b2',
+            weight: 4,
+            opacity: 0.85,
+            lineJoin: 'round',
+            lineCap: 'round'
+          }
+        }).addTo(map);
+
+        // Distance / durée depuis les métadonnées ORS
+        const seg = data.features?.[0]?.properties?.summary;
+        if (seg) {
+          const km   = (seg.distance).toFixed(1);
+          const mins = Math.round(seg.duration / 60);
+          document.getElementById('dist-display').textContent = `${km} km`;
+          document.getElementById('dist-text').textContent    = `${km} km · ${mins} min`;
+          document.getElementById('dist-badge').style.display = 'block';
+        }
+
+      } catch (err) {
+        console.warn('ORS non disponible, ligne droite utilisée:', err.message);
+        // Fallback : ligne droite pointillée
+        routeLayer = L.polyline(
+          [[fromLat, fromLng], [toLat, toLng]],
+          { color: '#0891b2', dashArray: '8,6', weight: 3, opacity: 0.7 }
+        ).addTo(map);
+        // Distance à vol d'oiseau
+        const d = haversine(fromLat, fromLng, toLat, toLng);
+        document.getElementById('dist-display').textContent = `~${d} km`;
+        document.getElementById('dist-text').textContent    = `~${d} km`;
+        document.getElementById('dist-badge').style.display = 'block';
+      }
+    }
+
+    function haversine(lat1, lng1, lat2, lng2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+      return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  GPS
+    // ══════════════════════════════════════════════════════
+    function activerGPS() {
+      if (gpsActif) { showToast('GPS déjà actif'); return; }
+
+      if (!navigator.geolocation) {
+        showToast('Géolocalisation non supportée');
+        setBadge('off', 'GPS non supporté');
+        return;
+      }
+
+      setBadge('waiting', 'Demande GPS…');
+
+      // Première position immédiate
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          onPositionSuccess(pos);
+          // Puis suivi continu
+          watchId = navigator.geolocation.watchPosition(
+            onPositionSuccess,
+            onPositionError,
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
+          );
+          sendTimer = setInterval(envoyerPosition, SEND_INTERVAL);
+          gpsActif = true;
+
+          const btn = document.getElementById('btn-gps');
+          btn.textContent = '📡 GPS actif';
+          btn.disabled    = true;
+
+          showToast('GPS activé ✓');
+        },
+        (err) => {
+          console.error('GPS getCurrentPosition error:', err.code, err.message);
+          handleGpsError(err);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    }
+
+    function onPositionSuccess(position) {
+      currentLat = position.coords.latitude;
+      currentLng = position.coords.longitude;
+      const acc  = Math.round(position.coords.accuracy);
+
+      // Créer ou déplacer le marker livreur
+      if (!livreurMarker) {
+        livreurMarker = L.marker([currentLat, currentLng], { icon: iconLivreur, zIndexOffset: 1000 }).addTo(map);
+        map.setView([currentLat, currentLng], 15, { animate: true });
+      } else {
+        livreurMarker.setLatLng([currentLat, currentLng]);
+      }
+
+      // Mettre à jour l'itinéraire (pas à chaque position, toutes les ~10 s)
+      tracerItineraire(currentLat, currentLng, LAT_ARRIVEE, LNG_ARRIVEE);
+
+      // UI
+      document.getElementById('lat-display').textContent = currentLat.toFixed(5);
+      document.getElementById('lng-display').textContent = currentLng.toFixed(5);
+      document.getElementById('acc-display').textContent = `±${acc} m`;
+
+      setBadge('on', 'GPS actif');
+    }
+
+    function onPositionError(err) {
+      console.error('watchPosition error:', err.code, err.message);
+      handleGpsError(err);
+    }
+
+    function handleGpsError(err) {
+      let msg = 'Erreur GPS';
+      if (err.code === 1) msg = 'Permission refusée';
+      else if (err.code === 2) msg = 'Position indisponible';
+      else if (err.code === 3) msg = 'Délai GPS dépassé';
+      setBadge('off', msg);
+      showToast(`⚠️ ${msg}`);
+    }
+
+    // ── Envoi position au serveur ─────────────────────────
+    function envoyerPosition() {
+      if (!currentLat || !currentLng) return;
+
+      fetch(UPDATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ latitude: currentLat, longitude: currentLng })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          const t = new Date();
+          document.getElementById('last-sync').textContent =
+            t.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+      })
+      .catch(e => console.warn('Erreur envoi position:', e));
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  ÉTAT COURSE
+    // ══════════════════════════════════════════════════════
+    function changerEtat(etat) {
+      fetch(ETAT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ etat })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          document.querySelectorAll('.step').forEach(s => {
+            s.classList.toggle('active', s.dataset.etat === etat);
+          });
+          showToast('État mis à jour ✓');
+        }
+      })
+      .catch(e => console.error('changerEtat error:', e));
+    }
+
+    function marquerLivre() {
+      if (!confirm('Confirmer la livraison ?')) return;
+
+      if (watchId)    navigator.geolocation.clearWatch(watchId);
+      if (sendTimer)  clearInterval(sendTimer);
+      gpsActif = false;
+
+      fetch(ETAT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+        body: JSON.stringify({ etat: 'livre' })
+      })
+      .then(r => r.json())
+      .then(data => { if (data.success) showSuccessOverlay(); })
+      .catch(e => console.error('marquerLivre error:', e));
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  HELPERS UI
+    // ══════════════════════════════════════════════════════
+    function setBadge(state, text) {
+      const badge = document.getElementById('gps-badge');
+      const dot   = badge.querySelector('.gps-dot');
+      const span  = badge.querySelector('span:last-child') || badge;
+
+      badge.className = `gps-badge gps-${state}`;
+      dot.className   = 'gps-dot' + (state === 'on' ? ' pulse' : '');
+      dot.style.background = state === 'on' ? 'var(--accent)' : state === 'off' ? 'var(--danger)' : 'var(--warning)';
+      document.getElementById('gps-text').textContent = text;
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    function showSuccessOverlay() {
+      const o = document.createElement('div');
+      o.style.cssText = `position:fixed;inset:0;background:rgba(240,244,248,0.97);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Syne',sans-serif;`;
+      o.innerHTML = `
+        <div style="text-align:center;padding:48px 36px;background:#fff;border-radius:24px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(15,23,42,0.1);max-width:360px;margin:16px;">
+          <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+          <h2 style="color:#16a34a;font-size:26px;font-weight:800;margin-bottom:8px;">Livraison confirmée !</h2>
+          <p style="color:#64748b;font-size:14px;line-height:1.5;">La course a été marquée comme livrée avec succès.</p>
+          <button onclick="window.history.back()" style="margin-top:28px;background:linear-gradient(135deg,#0891b2,#0369a1);color:#fff;border:none;padding:14px 40px;border-radius:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;box-shadow:0 4px 16px rgba(8,145,178,0.3);">
+            ← Retour à mes courses
+          </button>
+        </div>`;
+      document.body.appendChild(o);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  TABS (mobile)
+    // ══════════════════════════════════════════════════════
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── Clic étapes ──────────────────────────────────────
+    document.querySelectorAll('.step').forEach(step => {
+      step.addEventListener('click', () => changerEtat(step.dataset.etat));
+    });
+
+    // ── Tracé initial départ → arrivée ───────────────────
+    tracerItineraire(LAT_DEPART, LNG_DEPART, LAT_ARRIVEE, LNG_ARRIVEE);
+    </script>
+  </body>
+</html>

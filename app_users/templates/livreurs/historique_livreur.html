@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Livreur - Historique des Actions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'orange': {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l4 5.917 4-5.917h-2.938c.244-3.69 3.304-6.667 7.004-6.667 3.89 0 7 3.11 7 7s-3.11 7-7 7c-1.904 0-3.63-.76-4.873-1.993l-1.442 1.442c1.618 1.618 3.843 2.551 6.315 2.551 4.962 0 9-4.038 9-9s-4.038-9-9-9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Flash Livreur</h1>
+                        <p class="text-xs text-gray-500">Historique des actions</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+                    <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 19h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">247</div>
+                    <div class="text-sm opacity-90">Actions aujourd'hui</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">1,247</div>
+                    <div class="text-sm opacity-90">Total ce mois</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">€2,480</div>
+                    <div class="text-sm opacity-90">Gains générés</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold">4.9⭐</div>
+                    <div class="text-sm opacity-90">Note moyenne</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Filters -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-24">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">Filtres</h3>
+                    
+                    <!-- Date Filter -->
+                    <div class="space-y-3 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700">Période</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                            <option>Aujourd'hui</option>
+                            <option>Cette semaine</option>
+                            <option selected>Ce mois</option>
+                            <option>3 derniers mois</option>
+                            <option>Personnalisée</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm">
+                            <input type="date" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Action Type Filter -->
+                    <div class="space-y-3 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700">Type d'action</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" checked class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">Toutes les actions</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">🚚 Livraisons</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">🔗 Connexions</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">💰 Paiements</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="text-orange-500 rounded focus:ring-orange-500">
+                                <span class="ml-2 text-sm text-gray-700">⚙️ Modifications</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="space-y-3 mb-6">
+                        <label class="block text-sm font-semibold text-gray-700">Statut</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                            <option>Tous les statuts</option>
+                            <option>✅ Terminé</option>
+                            <option>⏳ En cours</option>
+                            <option>❌ Annulé</option>
+                            <option>⚠️ Problème</option>
+                        </select>
+                    </div>
+
+                    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg transition-colors font-medium">
+                        Appliquer les filtres
+                    </button>
+                </div>
+            </div>
+
+            <!-- History List -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <h3 class="text-lg font-bold text-gray-900">Historique détaillé</h3>
+                            <div class="flex items-center space-x-3">
+                                <div class="relative">
+                                    <input type="text" placeholder="Rechercher..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-64">
+                                    <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </div>
+                                <button class="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline -->
+                    <div class="divide-y divide-gray-100">
+                        <!-- Action Item -->
+                        <div class="p-6 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">Livraison terminée</p>
+                                            <p class="text-sm text-gray-600 mt-1">Commande #FL-2024-001247 livrée avec succès</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-sm text-gray-500">📍 15 Rue de la Paix, 75001 Paris</span>
+                                                <span class="text-sm text-gray-500">👤 Marie Martin</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Il y a 2 heures</p>
+                                            <p class="text-xs text-gray-400">14:30</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                            ✅ Terminé
+                                        </span>
+                                        <span class="text-sm font-bold text-green-600">+€12.50</span>
+                                        <div class="flex items-center">
+                                            <span class="text-sm text-orange-400">⭐⭐⭐⭐⭐</span>
+                                            <span class="text-sm text-gray-600 ml-1">(5.0)</span>
+                                        </div>
+                                        <span class="text-xs text-gray-500">Distance: 3.2 km</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Item -->
+                        <div class="p-6 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">Nouvelle commande acceptée</p>
+                                            <p class="text-sm text-gray-600 mt-1">Commande #FL-2024-001246 acceptée et en cours de préparation</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-sm text-gray-500">🏪 Restaurant Le Petit Bistro</span>
+                                                <span class="text-sm text-gray-500">📍 28 Avenue des Champs</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Il y a 3 heures</p>
+                                            <p class="text-xs text-gray-400">13:15</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                            ⏳ En cours
+                                        </span>
+                                        <span class="text-sm font-medium text-orange-600">Estimation: €15.20</span>
+                                        <span class="text-xs text-gray-500">Distance: 2.3 km</span>
+                                        <span class="text-xs text-gray-500">Temps estimé: 25 min</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Item -->
+                        <div class="p-6 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">Connexion à l'application</p>
+                                            <p class="text-sm text-gray-600 mt-1">Ouverture de session réussie</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-sm text-gray-500">📍 Paris, France</span>
+                                                <span class="text-sm text-gray-500">📱 Application mobile</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Il y a 4 heures</p>
+                                            <p class="text-xs text-gray-400">12:00</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                                            🔗 Connexion
+                                        </span>
+                                        <span class="text-xs text-gray-500">IP: 192.168.1.100</span>
+                                        <span class="text-xs text-gray-500">Durée: 4h 30min</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Item -->
+                        <div class="p-6 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">Paiement reçu</p>
+                                            <p class="text-sm text-gray-600 mt-1">Virement hebdomadaire effectué avec succès</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-sm text-gray-500">🏦 Compte bancaire **** 1234</span>
+                                                <span class="text-sm text-gray-500">📅 Semaine 38/2024</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Hier</p>
+                                            <p class="text-xs text-gray-400">09:00</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                            💰 Paiement
+                                        </span>
+                                        <span class="text-lg font-bold text-green-600">+€245.80</span>
+                                        <span class="text-xs text-gray-500">12 livraisons</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Item -->
+                        <div class="p-6 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center shadow-lg">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">Commande annulée</p>
+                                            <p class="text-sm text-gray-600 mt-1">Commande #FL-2024-001245 annulée par le client</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-sm text-gray-500">⏰ Annulation après 5 minutes</span>
+                                                <span class="text-sm text-gray-500">💸 Frais d'annulation appliqués</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Il y a 2 jours</p>
+                                            <p class="text-xs text-gray-400">16:45</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                            ❌ Annulé
+                                        </span>
+                                        <span class="text-sm font-medium text-orange-600">+€3.50</span>
+                                        <span class="text-xs text-gray-500">Compensation d'annulation</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Item -->
+                        <div class="p-6 hover:bg-gray-50 transition-colors group">
+                            <div class="flex items-start space-x-4">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center shadow-lg">
+                                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <p class="text-lg font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">Profil mis à jour</p>
+                                            <p class="text-sm text-gray-600 mt-1">Modification des informations de contact</p>
+                                            <div class="flex items-center space-x-4 mt-2">
+                                                <span class="text-sm text-gray-500">📱 Numéro de téléphone modifié</span>
+                                                <span class="text-sm text-gray-500">📧 Email confirmé</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm text-gray-500">Il y a 3 jours</p>
+                                            <p class="text-xs text-gray-400">11:30</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-4 mt-4">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                                            ⚙️ Modification
+                                        </span>
+                                        <span class="text-xs text-gray-500">Changements validés</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Load More -->
+                    <div class="p-6 border-t border-gray-200 text-center bg-gray-50">
+                        <button class="inline-flex items-center px-6 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Charger plus d'actions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-6 max-w-md mx-4">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Exporter l'historique</h3>
+            <div class="space-y-3">
+                <label class="flex items-center">
+                    <input type="radio" name="exportFormat" value="pdf" class="text-orange-500">
+                    <span class="ml-2">📄 PDF</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="exportFormat" value="excel" class="text-orange-500">
+                    <span class="ml-2">📊 Excel</span>
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="exportFormat" value

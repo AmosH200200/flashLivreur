@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Historique des courses</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    * { font-family: 'DM Sans', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    body { background: #f5f5f4; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease both; }
+    .delay-1 { animation-delay: 0.05s; }
+    .delay-2 { animation-delay: 0.10s; }
+    .delay-4 { animation-delay: 0.20s; }
+
+    .row-card { transition: background 0.15s, box-shadow 0.15s, transform 0.15s; }
+    .row-card:hover {
+      background: #fafafa;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      transform: translateX(2px);
+    }
+
+    .tab-active-green { border-bottom: 2.5px solid #16a34a; color: #15803d; font-weight: 700; }
+    .tab-active-red   { border-bottom: 2.5px solid #dc2626; color: #dc2626; font-weight: 700; }
+    .tab-inactive     { border-bottom: 2.5px solid transparent; color: #9ca3af; }
+    .tab-inactive:hover { color: #374151; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+
+    .stat-card { transition: box-shadow 0.2s, transform 0.2s; }
+    .stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.09); transform: translateY(-2px); }
+
+    .filter-btn-active   { background: #111827; color: #fff; }
+    .filter-btn-inactive { background: #f3f4f6; color: #6b7280; }
+    .filter-btn-inactive:hover { background: #e5e7eb; }
+
+    @keyframes grow { from { width: 0; } to { width: var(--w); } }
+    .progress-bar { animation: grow 1s ease 0.3s both; }
+
+    .page-btn { transition: background 0.15s; }
+    .page-btn:hover:not(:disabled) { background: #f3f4f6; }
+    .page-btn-active { background: #111827; color: #fff; font-weight: 600; }
+    .page-btn-active:hover { background: #1f2937 !important; }
+
+    .export-btn { transition: background 0.15s, border-color 0.15s; }
+    .export-btn:hover { background: #f9fafb; border-color: #9ca3af; }
+  </style>
+</head>
+<body class="min-h-screen p-4 sm:p-6 lg:p-8 text-lg">
+
+<div class="max-w-6xl mx-auto fade-up">
+
+  <!-- ─── HEADER ─── -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <nav class="flex items-center gap-1.5 text-sm text-gray-400 mb-1">
+        <a href="{% url 'historique_client' %}" class="hover:text-gray-700 transition">Dashboard</a>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="text-gray-700 font-medium">Historique des courses</span>
+      </nav>
+      <h1 class="text-2xl font-bold text-gray-900">Historique des courses</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="#" class="export-btn flex items-center gap-1.5 text-sm px-3.5 py-2 border border-gray-200 rounded-xl bg-white text-gray-600 font-medium">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
+        Exporter CSV
+      </a>
+      <a href="{% url 'historique_client' %}" class="flex items-center gap-1.5 text-sm px-3.5 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-medium transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Retour
+      </a>
+    </div>
+  </div>
+
+  <!-- ─── STATS CARDS ─── -->
+  {% with nb_livrees=livrees.count nb_annulees=annulees.count nb_total=courses.count %}
+  {% with pct_livrees=livrees.count|divisibleby:courses.count %}
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 fade-up delay-1">
+
+    <div class="stat-card bg-white rounded-2xl border border-gray-200 px-5 py-4">
+      <p class="text-xs text-gray-400 font-medium mb-1">Total courses</p>
+      <p class="text-2xl font-bold text-gray-900 mono">{{ nb_total }}</p>
+      <p class="text-xs text-gray-400 mt-1">Toutes périodes</p>
+    </div>
+
+    <div class="stat-card bg-white rounded-2xl border border-gray-200 px-5 py-4">
+      <p class="text-xs text-gray-400 font-medium mb-1">Livrées</p>
+      <p class="text-2xl font-bold text-green-600 mono">{{ nb_livrees }}</p>
+      <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        {% if nb_total > 0 %}
+          {% widthratio nb_livrees nb_total 100 as pct_l %}
+          <div class="progress-bar h-full bg-green-500 rounded-full" style="--w: {{ pct_l }}%; width: {{ pct_l }}%"></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="stat-card bg-white rounded-2xl border border-gray-200 px-5 py-4">
+      <p class="text-xs text-gray-400 font-medium mb-1">Annulées</p>
+      <p class="text-2xl font-bold text-red-500 mono">{{ nb_annulees }}</p>
+      <div class="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        {% if nb_total > 0 %}
+          {% widthratio nb_annulees nb_total 100 as pct_a %}
+          <div class="progress-bar h-full bg-red-400 rounded-full" style="--w: {{ pct_a }}%; width: {{ pct_a }}%"></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="stat-card bg-white rounded-2xl border border-gray-200 px-5 py-4">
+      <p class="text-xs text-gray-400 font-medium mb-1">Gains totaux</p>
+      <p class="text-2xl font-bold text-gray-900 mono">{{ gains|floatformat:0 }}</p>
+      <p class="text-xs text-gray-400 mt-1">FCFA</p>
+    </div>
+  </div>
+  {% endwith %}{% endwith %}
+
+  <!-- ─── TABLEAU PRINCIPAL ─── -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden fade-up delay-2">
+
+    <!-- Filtres -->
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+        <!-- Filtres période — rechargement via GET -->
+        <form method="get" id="filter-form" class="flex items-center gap-2 flex-wrap">
+          <input type="hidden" name="tri"  value="{{ tri }}">
+          <input type="hidden" name="q"    value="{{ q }}">
+          <input type="hidden" name="tab"  value="{{ tab_active }}">
+          <input type="hidden" name="page" value="1">
+          <input type="hidden" name="periode" id="periode-input" value="{{ periode }}">
+
+          <button type="button" onclick="setPeriode(this,'all')"
+            class="filter-btn {% if periode == 'all' or not periode %}filter-btn-active{% else %}filter-btn-inactive{% endif %} text-sm px-3 py-1.5 rounded-lg font-medium transition">
+            Tout
+          </button>
+          <button type="button" onclick="setPeriode(this,'day')"
+            class="filter-btn {% if periode == 'day' %}filter-btn-active{% else %}filter-btn-inactive{% endif %} text-sm px-3 py-1.5 rounded-lg font-medium transition">
+            Aujourd'hui
+          </button>
+          <button type="button" onclick="setPeriode(this,'week')"
+            class="filter-btn {% if periode == 'week' %}filter-btn-active{% else %}filter-btn-inactive{% endif %} text-sm px-3 py-1.5 rounded-lg font-medium transition">
+            Semaine
+          </button>
+          <button type="button" onclick="setPeriode(this,'month')"
+            class="filter-btn {% if periode == 'month' %}filter-btn-active{% else %}filter-btn-inactive{% endif %} text-sm px-3 py-1.5 rounded-lg font-medium transition">
+            Mois
+          </button>
+        </form>
+
+        <!-- Tri + Recherche -->
+        <form method="get" class="flex items-center gap-2">
+          <input type="hidden" name="periode" value="{{ periode }}">
+          <input type="hidden" name="tab"     value="{{ tab_active }}">
+          <input type="hidden" name="page"    value="1">
+          <select name="tri" onchange="this.form.submit()"
+            class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-gray-600 focus:ring-2 focus:ring-gray-400 outline-none">
+            <option value="date-desc" {% if tri == 'date-desc' %}selected{% endif %}>Plus récent</option>
+            <option value="date-asc"  {% if tri == 'date-asc'  %}selected{% endif %}>Plus ancien</option>
+            <option value="prix-desc" {% if tri == 'prix-desc' %}selected{% endif %}>Prix ↓</option>
+            <option value="prix-asc"  {% if tri == 'prix-asc'  %}selected{% endif %}>Prix ↑</option>
+          </select>
+          <div class="relative">
+            <input type="text" name="q" value="{{ q }}"
+              placeholder="Rechercher…"
+              class="pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-400 outline-none w-40 bg-white">
+            <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <button type="submit" class="text-sm px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">OK</button>
+        </form>
+      </div>
+
+      <!-- Onglets -->
+      <div class="flex items-center gap-1 mt-4 border-b border-gray-200 -mb-4">
+        <a href="?tab=livrees&periode={{ periode }}&tri={{ tri }}&q={{ q }}&page=1"
+          id="tab-livrees"
+          class="{% if tab_active == 'livrees' or not tab_active %}tab-active-green{% else %}tab-inactive{% endif %} px-4 py-2.5 text-sm -mb-px transition">
+          ✅ Livrées
+          <span class="ml-1.5 text-xs bg-green-100 text-green-700 border border-green-200 px-1.5 py-0.5 rounded-full">{{ livrees.count }}</span>
+        </a>
+        <a href="?tab=annulees&periode={{ periode }}&tri={{ tri }}&q={{ q }}&page=1"
+          id="tab-annulees"
+          class="{% if tab_active == 'annulees' %}tab-active-red{% else %}tab-inactive{% endif %} px-4 py-2.5 text-sm -mb-px transition">
+          ❌ Annulées
+          <span class="ml-1.5 text-xs bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded-full">{{ annulees.count }}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Colonne Headers -->
+    <div class="hidden sm:grid grid-cols-12 px-6 py-2.5 text-xs font-semibold text-gray-400 uppercase tracking-wider bg-gray-50 border-b border-gray-100">
+      <div class="col-span-1">N°</div>
+      <div class="col-span-3">Destinataire</div>
+      <div class="col-span-3">Adresse</div>
+      <div class="col-span-2">Date & Heure</div>
+      <div class="col-span-1">Statut</div>
+      <div class="col-span-1 text-right">Prix</div>
+      <div class="col-span-1 text-right">Action</div>
+    </div>
+
+    <!-- ── Lignes ── -->
+    {% if courses_page %}
+      {% for c in courses_page %}
+    
+   
+      <div class="row-card px-4 sm:px-6 py-4 divide-y divide-gray-100">
+
+        <!-- Mobile -->
+        <div class="flex sm:hidden items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 {% if c.etat == 'livre' %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %} border rounded-xl flex items-center justify-center flex-shrink-0">
+              {% if c.etat == 'livre' %}
+                <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              {% else %}
+                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              {% endif %}
+            </div>
+            <div>
+              <p class="mono text-xs text-gray-400">{{ c.numero_course }}</p>
+              <p class="text-sm font-semibold text-gray-800">{{ c.nom_destinataire }}</p>
+              <p class="text-xs text-gray-400 truncate max-w-[160px]">{{ c.lieu_depart }}</p>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0">
+            <p class="text-base font-bold {% if c.etat == 'livre' %}text-gray-900{% else %}text-gray-400 line-through{% endif %}">{{ c.prix|floatformat:0 }}</p>
+            <p class="text-xs text-gray-400">FCFA</p>
+            <a href="{% url 'detail_course_client' c.id %}" class="text-xs font-medium {% if c.etat == 'livre' %}text-green-700{% else %}text-red-600{% endif %} hover:underline">Détails →</a>
+          </div>
+        </div>
+
+        <!-- Desktop -->
+        <div class="hidden sm:grid grid-cols-12 items-center gap-2">
+          <div class="col-span-1 mono text-xs text-gray-400">#{{ c.numero_course }}</div>
+          <div class="col-span-3 flex items-center gap-2.5">
+            <div class="w-8 h-8 {% if c.etat == 'livre' %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %} border rounded-lg flex items-center justify-center flex-shrink-0">
+              {% if c.etat == 'livre' %}
+                <svg class="w-3.5 h-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              {% else %}
+                <svg class="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+              {% endif %}
+            </div>
+            <span class="text-sm font-semibold text-gray-800 truncate">{{ c.nom_destinataire }}</span>
+          </div>
+          <div class="col-span-3 text-sm text-gray-500 truncate">{{ c.lieu_depart }}</div>
+          <div class="col-span-2 mono text-xs text-gray-400">{{ c.date_creation|date:"d M · H:i" }}</div>
+          <div class="col-span-1">
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full border whitespace-nowrap
+              {% if c.etat == 'livre' %}text-green-700 bg-green-50 border-green-200{% else %}text-red-600 bg-red-50 border-red-200{% endif %}">
+              {% if c.etat == 'livre' %}Livrée{% else %}Annulée{% endif %}
+            </span>
+          </div>
+          <div class="col-span-1 text-right">
+            <p class="text-sm font-bold {% if c.etat == 'livre' %}text-gray-900{% else %}text-gray-400 line-through{% endif %}">{{ c.prix|floatformat:0 }}</p>
+            <p class="text-xs text-gray-400">FCFA</p>
+          </div>
+          <div class="col-span-1 text-right">
+            <a href="{% url 'detail_course_client' c.id %}"
+              class="inline-flex items-center gap-0.5 text-xs font-medium {% if c.etat == 'livre' %}text-green-700 hover:text-green-900{% else %}text-red-600 hover:text-red-800{% endif %} transition">
+              Détails
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+     
+      {% empty %}
+      <div class="px-6 py-16 text-center">
+        <div class="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
+        <p class="text-gray-500 font-medium">Aucune course trouvée</p>
+        <p class="text-gray-400 text-sm mt-1">Essayez de modifier vos filtres ou votre recherche.</p>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- ─── PAGINATION ─── -->
+    {% if courses_page.paginator.num_pages > 1 %}
+    <div class="px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <p class="text-sm text-gray-400">
+        Affichage {{ courses_page.start_index }}–{{ courses_page.end_index }} sur {{ courses_page.paginator.count }} course{{ courses_page.paginator.count|pluralize }}
+      </p>
+      <div class="flex items-center gap-1">
+
+        {% if courses_page.has_previous %}
+        <a href="?page={{ courses_page.previous_page_number }}&tab={{ tab_active }}&periode={{ periode }}&tri={{ tri }}&q={{ q }}"
+          class="page-btn w-8 h-8 rounded-lg flex items-center justify-center text-gray-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        {% endif %}
+
+        {% for num in courses_page.paginator.page_range %}
+          {% if num <= 5 %}
+          <a href="?page={{ num }}&tab={{ tab_active }}&periode={{ periode }}&tri={{ tri }}&q={{ q }}"
+            class="page-btn w-8 h-8 rounded-lg text-sm flex items-center justify-center {% if num == courses_page.number %}page-btn-active{% else %}text-gray-500{% endif %}">
+            {{ num }}
+          </a>
+          {% endif %}
+        {% endfor %}
+
+        {% if courses_page.has_next %}
+        <a href="?page={{ courses_page.next_page_number }}&tab={{ tab_active }}&periode={{ periode }}&tri={{ tri }}&q={{ q }}"
+          class="page-btn w-8 h-8 rounded-lg flex items-center justify-center text-gray-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <p class="text-center text-xs text-gray-400 mt-4 fade-up delay-4">Données mises à jour en temps réel · Bénin Delivery ©2025</p>
+</div>
+
+<script>
+  // Filtre période → soumet le formulaire caché
+  function setPeriode(btn, val) {
+    document.getElementById('periode-input').value = val;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('filter-btn-active');
+      b.classList.add('filter-btn-inactive');
+    });
+    btn.classList.remove('filter-btn-inactive');
+    btn.classList.add('filter-btn-active');
+    document.getElementById('filter-form').submit();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash — Mon Profil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+<!-- Remplace l'ancienne ligne DM Mono par celle-ci -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+
+        * { font-family: 'DM Sans', sans-serif; }
+        code, .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "zero" 0; }
+        /* Désactiver le zéro barré globalement */
+        * { font-feature-settings: "zero" 0; }
+
+        /* Police augmentée globalement */
+        html { font-size: 17px; }
+        body { background: #f4f4f5; }
+
+        /* Focus ring neutral */
+        input:focus, select:focus, textarea:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px #18181b !important;
+        }
+        input[readonly], select[disabled] {
+            background-color: #fafafa;
+            cursor: default;
+            color: #3f3f46;
+            border-color: #e4e4e7;
+        }
+        input:not([readonly]):focus,
+        select:not([disabled]):focus {
+            border-color: #18181b !important;
+            background: #fff;
+        }
+
+        /* Pulse dot */
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+
+        /* Card */
+        .profile-card {
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e4e4e7;
+            overflow: hidden;
+            transition: box-shadow .2s;
+        }
+        .profile-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.05); }
+
+        /* ── Bouton édition / sauvegarde — VERT MODERNE ── */
+        .edit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: .875rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 10px;
+            border: 1.5px solid #16a34a;
+            background: white;
+            color: #16a34a;
+            cursor: pointer;
+            transition: background .18s, color .18s, border-color .18s, box-shadow .18s;
+        }
+        .edit-btn:hover {
+            background: #16a34a;
+            color: white;
+            box-shadow: 0 4px 14px rgba(22,163,74,.28);
+        }
+        .edit-btn:disabled { opacity: .55; cursor: default; }
+        .edit-btn.saving {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+        .edit-btn.saved {
+            background: #dcfce7;
+            color: #15803d;
+            border-color: #86efac;
+        }
+
+        /* Section header stripe */
+        .section-stripe {
+            background: #fafafa;
+            border-bottom: 1px solid #e4e4e7;
+            padding: 18px 26px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Fade-in */
+        @keyframes fadeInUp {
+            from { opacity:0; transform:translateY(14px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .fade-in { animation: fadeInUp .4s ease both; }
+
+        /* Input base */
+        .field-input {
+            width: 100%;
+            padding: 13px 17px;
+            border: 1px solid #e4e4e7;
+            border-radius: 12px;
+            font-size: .9375rem;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
+        /* ── Toggle Switch (Préférences) — VERT quand activé ── */
+        .pref-toggle { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+        .pref-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .pref-track {
+            width: 48px; height: 27px;
+            background: #d1d5db;
+            border-radius: 99px;
+            transition: background .2s;
+            position: relative;
+        }
+        .pref-toggle input:checked ~ .pref-track {
+            background: #16a34a;
+            box-shadow: 0 0 0 0 rgba(22,163,74,0);
+        }
+        .pref-toggle input:checked ~ .pref-track {
+            background: #16a34a;
+        }
+        .pref-track::after {
+            content: '';
+            position: absolute;
+            width: 21px; height: 21px;
+            background: white;
+            border-radius: 50%;
+            top: 3px; left: 3px;
+            transition: left .2s;
+            box-shadow: 0 1px 5px rgba(0,0,0,.22);
+        }
+        .pref-toggle input:checked ~ .pref-track::after { left: 24px; }
+
+        /* ── Section retrait ── */
+        .retrait-card {
+            background: white;
+            border: 1px solid #e4e4e7;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+        .retrait-input {
+            width: 100%;
+            padding: 13px 17px;
+            border: 1px solid #e4e4e7;
+            border-radius: 12px;
+            font-size: .9375rem;
+            background: #fafafa;
+            color: #18181b;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+        .retrait-input:focus {
+            outline: none;
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22,163,74,.12);
+            background: white;
+        }
+        .retrait-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: .9375rem;
+            font-weight: 700;
+            padding: 13px 28px;
+            border-radius: 12px;
+            border: none;
+            background: #16a34a;
+            color: white;
+            cursor: pointer;
+            transition: background .18s, box-shadow .18s, transform .12s;
+            box-shadow: 0 3px 12px rgba(22,163,74,.25);
+            width: 100%;
+        }
+        .retrait-btn:hover {
+            background: #15803d;
+            box-shadow: 0 6px 20px rgba(22,163,74,.35);
+            transform: translateY(-1px);
+        }
+        .retrait-btn:active { transform: translateY(0); }
+        .retrait-btn:disabled { opacity: .45; cursor: default; transform: none; box-shadow: none; }
+
+        /* Notification toast */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 9999;
+            background: #16a34a;
+            color: white;
+            font-weight: 600;
+            font-size: .9375rem;
+            padding: 14px 22px;
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(22,163,74,.38);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity .3s, transform .3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ── TOAST NOTIFICATION ── -->
+<div id="toast" class="toast">
+    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+    </svg>
+    <span id="toast-msg">Modifications enregistrées</span>
+</div>
+
+<!-- ─── HEADER ─────────────────────────────────────────────────────── -->
+<header class="bg-white border-b border-zinc-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-orange-900 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-base font-bold text-zinc-900 leading-none">Flash</p>
+                    <p class="text-xs text-zinc-400 font-medium tracking-wide uppercase">Livreur</p>
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="flex items-center gap-4">
+                <a href="{% url 'livreur_dashboard' %}" class="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-zinc-500 hover:text-zinc-800 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    Dashboard
+                </a>
+                <span class="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
+                    Disponible
+                </span>
+                <p id="clock" class="hidden sm:block text-sm font-medium text-zinc-500 mono">14:35</p>
+                <button class="relative p-2 text-zinc-500 hover:bg-zinc-100 rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17H5l2-2V9a5 5 0 0110 0v6l2 2zM13 21H11"/>
+                    </svg>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ─── MAIN ─────────────────────────────────────────────────────────── -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+
+        <!-- ── SIDEBAR ── -->
+        <aside class="lg:col-span-1 space-y-5 sticky top-24 self-start">
+
+            <!-- Identity card -->
+            <div class="profile-card p-6 fade-in" style="animation-delay:.05s">
+                <div class="flex flex-col items-center text-center">
+                    <div class="relative mb-4">
+                        <div class="w-22 h-22 bg-zinc-900 rounded-full flex items-center justify-center overflow-hidden ring-4 ring-white shadow-lg" style="width:88px;height:88px;">
+                            {% if user.photo %}
+                                <img src="{{ user.photo.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <span class="text-white text-2xl font-bold">
+                                    {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                        <button class="absolute -bottom-1 -right-1 w-8 h-8 bg-white border border-zinc-200 shadow rounded-full flex items-center justify-center text-zinc-600 hover:bg-zinc-100 transition" onclick="openPhotoModal()">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        </button>
+                    </div>
+
+                    <h2 class="text-xl font-bold text-zinc-900 leading-tight">{{ user.first_name }} {{ user.last_name }}</h2>
+                    <p class="text-sm text-zinc-400 mb-3">Livreur Premium</p>
+
+                    <span class="flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full pulse-dot"></span>
+                        En ligne
+                    </span>
+                </div>
+
+                <div class="mt-5 pt-5 border-t border-zinc-100 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-zinc-500">Note</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-amber-400">★★★★★</span>
+                            <span class="text-base font-semibold text-zinc-800">4.9</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-zinc-500">Livraisons</span>
+                        <span class="text-base font-bold text-zinc-900">1 247</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-zinc-500">Membre depuis</span>
+                        <span class="text-sm font-semibold text-zinc-700 mono">{{ request.user.date_joined|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="profile-card p-4 fade-in" style="animation-delay:.1s">
+                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-2 mb-2">Navigation</p>
+                <div class="space-y-0.5">
+                    <button class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition group text-base font-medium text-zinc-700">
+                        <svg class="w-4 h-4 text-zinc-400 group-hover:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        Mes statistiques
+                    </button>
+                    <button class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition group text-base font-medium text-zinc-700">
+                        <svg class="w-4 h-4 text-zinc-400 group-hover:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        Historique
+                    </button>
+                    <button class="w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition group text-base font-medium text-zinc-700">
+                        <svg class="w-4 h-4 text-zinc-400 group-hover:text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Mes gains
+                    </button>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="profile-card p-4 fade-in" style="animation-delay:.15s">
+                <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider px-2 mb-2">Support</p>
+                <div class="space-y-0.5">
+                    <button class="w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition group">
+                        <span class="text-base text-zinc-700 font-medium">Contacter l'assistance</span>
+                        <svg class="w-4 h-4 text-zinc-400 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <button class="w-full text-left flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-zinc-50 transition group">
+                        <span class="text-base text-zinc-700 font-medium">Signaler un problème</span>
+                        <svg class="w-4 h-4 text-zinc-400 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <a href="{% url 'user_logout' %}" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-red-50 transition group">
+                        <span class="text-base text-red-600 font-medium">Déconnexion</span>
+                        <svg class="w-4 h-4 text-red-400 group-hover:translate-x-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ── MAIN COLUMN ── -->
+        <div class="lg:col-span-3 space-y-6">
+
+            <!-- ── SECTION 1 : Informations personnelles ── -->
+            <div class="profile-card fade-in" style="animation-delay:.2s">
+                <div class="section-stripe">
+                    <div>
+                        <h3 class="text-lg font-bold text-zinc-900">Informations personnelles</h3>
+                        <p class="text-sm text-zinc-400 mt-0.5">Vos données personnelles et coordonnées</p>
+                    </div>
+                    <button id="btn-personal" onclick="toggleSection('personal')" class="edit-btn">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        Modifier
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Prénom</label>
+                            <input data-section="personal" name="first_name" readonly type="text"
+                                value="{{ user.first_name }}"
+                                class="field-input">
+                            <span data-error-for="first_name" data-section="personal" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Nom</label>
+                            <input data-section="personal" name="last_name" readonly type="text"
+                                value="{{ user.last_name }}"
+                                class="field-input">
+                            <span data-error-for="last_name" data-section="personal" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Email</label>
+                            <input data-section="personal" name="email" readonly type="email"
+                                value="{{ user.email }}"
+                                class="field-input">
+                            <span data-error-for="email" data-section="personal" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Téléphone</label>
+                            <input data-section="personal" name="telephone" readonly type="tel"
+                                value="{{ user.telephone }}"
+                                class="field-input mono">
+                            <span data-error-for="telephone" data-section="personal" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Date de naissance</label>
+                            <input data-section="personal" name="date_naissance" readonly type="date"
+                                value="{{ user.date_naissance|date:'Y-m-d'|default:'' }}"
+                                class="field-input mono">
+                            <span data-error-for="date_naissance" data-section="personal" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Zone de couverture</label>
+                            <input data-section="personal" name="zone_couverture" readonly type="text"
+                                value="{{ user.livreur_profile.zone_couverture|default:'' }}"
+                                class="field-input">
+                            <span data-error-for="zone_couverture" data-section="personal" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── SECTION 2 : Informations véhicule ── -->
+            <div class="profile-card fade-in" style="animation-delay:.28s">
+                <div class="section-stripe">
+                    <div>
+                        <h3 class="text-lg font-bold text-zinc-900">Informations véhicule</h3>
+                        <p class="text-sm text-zinc-400 mt-0.5">Données de votre véhicule et permis</p>
+                    </div>
+                    <button id="btn-vehicule" onclick="toggleSection('vehicule')" class="edit-btn">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        Modifier
+                    </button>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Type de véhicule</label>
+                            <select data-section="vehicule" name="type_vehicule" disabled class="field-input">
+                                <option value="moto"    {% if profile.type_vehicule == 'moto' %}selected{% endif %}>🏍️ Moto</option>
+                                <option value="velo"    {% if profile.type_vehicule == 'velo' %}selected{% endif %}>🚲 Vélo</option>
+                                <option value="voiture" {% if profile.type_vehicule == 'voiture' %}selected{% endif %}>🚗 Voiture</option>
+                                <option value="scooter" {% if profile.type_vehicule == 'scooter' %}selected{% endif %}>🛵 Scooter</option>
+                            </select>
+                            <span data-error-for="type_vehicule" data-section="vehicule" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Immatriculation</label>
+                            <input data-section="vehicule" name="immatriculation" readonly type="text"
+                                value="{{ profile.immatriculation|default:'' }}"
+                                class="field-input mono">
+                            <span data-error-for="immatriculation" data-section="vehicule" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Marque</label>
+                            <input data-section="vehicule" name="marque_vehicule" readonly type="text"
+                                value="{{ profile.marque_vehicule|default:'' }}"
+                                class="field-input">
+                            <span data-error-for="marque_vehicule" data-section="vehicule" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Modèle</label>
+                            <input data-section="vehicule" name="modele_vehicule" readonly type="text"
+                                value="{{ profile.modele_vehicule|default:'' }}"
+                                class="field-input">
+                            <span data-error-for="modele_vehicule" data-section="vehicule" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">N° Permis</label>
+                            <input data-section="vehicule" name="numero_permis" readonly type="text"
+                                value="{{ profile.numero_permis|default:'' }}"
+                                class="field-input mono">
+                            <span data-error-for="numero_permis" data-section="vehicule" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Expiration permis</label>
+                            <input data-section="vehicule" name="date_expiration_permis" readonly type="date"
+                                value="{{ profile.date_expiration_permis|date:'Y-m-d'|default:'' }}"
+                                class="field-input mono">
+                            <span data-error-for="date_expiration_permis" data-section="vehicule" class="text-red-500 text-sm hidden"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-xl p-4">
+                        <div class="w-9 h-9 bg-zinc-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-base font-semibold text-zinc-800">Documents requis</p>
+                            <p class="text-sm text-zinc-500">Assurez-vous que votre permis et votre assurance sont à jour.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── SECTION 3 : Performances ── 
+            <div class="profile-card fade-in" style="animation-delay:.36s">
+                <div class="section-stripe">
+                    <div>
+                        <h3 class="text-lg font-bold text-zinc-900">Performances du mois</h3>
+                        <p class="text-sm text-zinc-400 mt-0.5">Résumé de votre activité</p>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center bg-zinc-50 border border-zinc-100 rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-zinc-900">124</p>
+                            <p class="text-sm font-medium text-zinc-500 mt-1">Livraisons</p>
+                            <p class="text-sm text-emerald-600 mt-1 font-semibold">↑ +12%</p>
+                        </div>
+                        <div class="text-center bg-zinc-50 border border-zinc-100 rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-zinc-900">145k</p>
+                            <p class="text-sm font-medium text-zinc-500 mt-1">FCFA gains</p>
+                            <p class="text-sm text-emerald-600 mt-1 font-semibold">↑ +18%</p>
+                        </div>
+                        <div class="text-center bg-zinc-50 border border-zinc-100 rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-zinc-900">42h</p>
+                            <p class="text-sm font-medium text-zinc-500 mt-1">Temps actif</p>
+                            <p class="text-sm text-zinc-400 mt-1">Semaine type</p>
+                        </div>
+                        <div class="text-center bg-zinc-50 border border-zinc-100 rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-zinc-900">98%</p>
+                            <p class="text-sm font-medium text-zinc-500 mt-1">Satisfaction</p>
+                            <p class="text-sm text-emerald-600 mt-1 font-semibold">Excellent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>    -->
+
+            <!-- ── SECTION 4 : Demander un retrait ── -->
+            <div class="retrait-card fade-in" style="animation-delay:.42s">
+                <div class="section-stripe">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-zinc-900">Demander un retrait</h3>
+                            <p class="text-sm text-zinc-400 mt-0.5">Transférez vos gains vers votre compte</p>
+                        </div>
+                    </div>
+                    <!-- Solde badge -->
+                    <div class="hidden sm:flex flex-col items-end">
+                        <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Solde disponible</span>
+                        <span class="text-xl font-bold text-emerald-600 mono">145 750 FCFA</span>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-5">
+
+                    <!-- Solde mobile -->
+                    <div class="sm:hidden bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center justify-between">
+                        <span class="text-sm font-semibold text-zinc-500">Solde disponible</span>
+                        <span class="text-lg font-bold text-emerald-600 mono">145 750 FCFA</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <!-- Montant -->
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Montant (FCFA)</label>
+                            <div class="relative">
+                                <input id="retrait-montant" name="montant" type="number" min="500" step="100"
+                                    placeholder="50 000"
+                                    class="retrait-input pr-16">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-zinc-400">FCFA</span>
+                            </div>
+                            <span id="error-montant" class="text-red-500 text-xs hidden"></span>
+                        </div>
+
+                        <!-- Mode de paiement -->
+                        <div class="space-y-1.5">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Mode de paiement</label>
+                            <select id="retrait-mode" name="mode_paiement" class="retrait-input">
+                                <option value="">— Choisir —</option>
+                                <option value="mobile_money">📱 Mobile Money</option>
+                                <option value="virement">🏦 Virement bancaire</option>
+                                <option value="cash">💵 Espèces (agence)</option>
+                            </select>
+                            <span id="error-mode" class="text-red-500 text-xs hidden"></span>
+                        </div>
+
+                        <!-- Référence -->
+                        <div class="space-y-1.5 md:col-span-2">
+                            <label class="block text-xs font-semibold text-zinc-500 uppercase tracking-wide">Numéro / Référence</label>
+                            <input id="retrait-reference" name="reference_paiement" type="text"
+                                placeholder="+229 97 00 00 00 ou IBAN..."
+                                class="retrait-input">
+                            <span id="error-reference" class="text-red-500 text-xs hidden"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- Confirmation + bouton -->
+                    <div class="pt-1 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <label class="pref-toggle">
+                                <input type="checkbox" id="retrait-confirm">
+                                <div class="pref-track"></div>
+                            </label>
+                            <p class="text-sm text-zinc-600">Je confirme que les informations saisies sont correctes.</p>
+                        </div>
+
+                        <button id="btn-retrait" onclick="demanderRetrait()" class="retrait-btn" disabled>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                            Soumettre le retrait
+                        </button>
+
+                        <p class="text-xs text-zinc-400 text-center">Traitement sous 24 à 48h ouvrées · Confirmation par SMS</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ── SECTION 5 : Préférences ── -->
+            <div class="profile-card fade-in" style="animation-delay:.5s">
+                <div class="section-stripe">
+                    <div>
+                        <h3 class="text-lg font-bold text-zinc-900">Préférences</h3>
+                        <p class="text-sm text-zinc-400 mt-0.5">Paramètres de votre compte</p>
+                    </div>
+                </div>
+                <div class="divide-y divide-zinc-100">
+
+                    <div class="flex items-center justify-between px-6 py-4">
+                        <div>
+                            <p class="text-base font-semibold text-zinc-800">Notifications push</p>
+                            <p class="text-sm text-zinc-400 mt-0.5">Recevoir les alertes pour nouvelles commandes</p>
+                        </div>
+                        <label class="pref-toggle">
+                            <input type="checkbox" checked>
+                            <div class="pref-track"></div>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-between px-6 py-4">
+                        <div>
+                            <p class="text-base font-semibold text-zinc-800">Mode sombre</p>
+                            <p class="text-sm text-zinc-400 mt-0.5">Interface en mode sombre</p>
+                        </div>
+                        <label class="pref-toggle">
+                            <input type="checkbox">
+                            <div class="pref-track"></div>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-between px-6 py-4">
+                        <div>
+                            <p class="text-base font-semibold text-zinc-800">Géolocalisation</p>
+                            <p class="text-sm text-zinc-400 mt-0.5">Partager ma position en temps réel</p>
+                        </div>
+                        <label class="pref-toggle">
+                            <input type="checkbox" checked>
+                            <div class="pref-track"></div>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
+        </div><!-- end main col -->
+    </div>
+</main>
+
+<script>
+    // ── Clock ────────────────────────────────────────────────
+    function updateClock() {
+        const t = new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+        document.getElementById('clock').textContent = t;
+    }
+    setInterval(updateClock, 30000);
+    updateClock();
+
+    // ── Toast notification ───────────────────────────────────
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toast-msg');
+        toastMsg.textContent = msg;
+        toast.style.background = isError ? '#dc2626' : '#16a34a';
+        toast.style.boxShadow  = isError
+            ? '0 8px 28px rgba(220,38,38,.38)'
+            : '0 8px 28px rgba(22,163,74,.38)';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    // ── Configuration (logique backend inchangée) ────────────
+    const API_URLS = {
+        personal: '/profil/personal/',
+        vehicule:  '/profil/vehicule/'
+    };
+
+    const sectionState = {
+        personal: false,
+        vehicule:  false
+    };
+
+    const btnLabels = {
+        personal: { view: 'Modifier', edit: 'Enregistrer' },
+        vehicule:  { view: 'Modifier', edit: 'Enregistrer' }
+    };
+
+    const btnIcons = {
+        view: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`,
+        edit: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>`
+    };
+
+    // ── Utilitaires ──────────────────────────────────────────
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    function collectSectionData(section) {
+        const data = {};
+        document.querySelectorAll(`input[data-section="${section}"], select[data-section="${section}"]`)
+            .forEach(el => { if (el.name) data[el.name] = el.value; });
+        return data;
+    }
+
+    function displayErrors(section, errors) {
+        document.querySelectorAll(`[data-error-for][data-section="${section}"]`).forEach(el => {
+            el.textContent = '';
+            el.classList.add('hidden');
+        });
+        Object.entries(errors).forEach(([field, message]) => {
+            const errorEl = document.querySelector(`[data-error-for="${field}"][data-section="${section}"]`);
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+            } else {
+                console.warn(`Erreur sur "${field}" : ${message}`);
+            }
+        });
+    }
+
+    function setReadOnly(section) {
+        document.querySelectorAll(`input[data-section="${section}"]`).forEach(el => {
+            el.setAttribute('readonly', true);
+            el.classList.remove('bg-white');
+        });
+        document.querySelectorAll(`select[data-section="${section}"]`).forEach(el => {
+            el.setAttribute('disabled', true);
+            el.classList.remove('bg-white');
+        });
+    }
+
+    function setEditable(section) {
+        document.querySelectorAll(`input[data-section="${section}"]`).forEach(el => {
+            el.removeAttribute('readonly');
+            el.classList.add('bg-white');
+        });
+        document.querySelectorAll(`select[data-section="${section}"]`).forEach(el => {
+            el.removeAttribute('disabled');
+            el.classList.add('bg-white');
+        });
+    }
+
+    // ── Logique principale (inchangée) ──────────────────────
+    async function toggleSection(section) {
+        const isEditing = sectionState[section];
+        const btn = document.getElementById('btn-' + section);
+
+        if (!isEditing) {
+            setEditable(section);
+            btn.innerHTML = btnIcons.edit + btnLabels[section].edit;
+            sectionState[section] = true;
+
+        } else {
+            btn.disabled = true;
+            btn.classList.add('saving');
+            btn.innerHTML = '⏳ Enregistrement…';
+
+            const payload = collectSectionData(section);
+
+            try {
+                const response = await fetch(API_URLS[section], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    setReadOnly(section);
+                    sectionState[section] = false;
+                    btn.disabled = false;
+                    btn.classList.remove('saving');
+                    btn.classList.add('saved');
+                    btn.innerHTML = '✓ Sauvegardé';
+                    showToast('Modifications enregistrées avec succès');
+                    setTimeout(() => {
+                        btn.classList.remove('saved');
+                        btn.innerHTML = btnIcons.view + btnLabels[section].view;
+                    }, 1800);
+
+                } else {
+                    if (result.errors) displayErrors(section, result.errors);
+                    btn.disabled = false;
+                    btn.classList.remove('saving');
+                    btn.innerHTML = btnIcons.edit + btnLabels[section].edit;
+                    showToast('Erreur lors de la sauvegarde', true);
+                }
+
+            } catch (err) {
+                console.error('Erreur réseau :', err);
+                btn.disabled = false;
+                btn.classList.remove('saving');
+                btn.innerHTML = '✗ Erreur réseau';
+                showToast('Erreur réseau — réessayez', true);
+                setTimeout(() => {
+                    btn.innerHTML = btnIcons.edit + btnLabels[section].edit;
+                }, 2000);
+            }
+        }
+    }
+
+    // ── Retrait : activation bouton via checkbox ─────────────
+    document.getElementById('retrait-confirm').addEventListener('change', function () {
+        document.getElementById('btn-retrait').disabled = !this.checked;
+    });
+
+    // ── Demande de retrait ───────────────────────────────────
+    async function demanderRetrait() {
+        const montant   = document.getElementById('retrait-montant').value;
+        const mode      = document.getElementById('retrait-mode').value;
+        const reference = document.getElementById('retrait-reference').value;
+        const btn       = document.getElementById('btn-retrait');
+
+        // Réinitialiser erreurs
+        ['montant','mode','reference'].forEach(f => {
+            const el = document.getElementById('error-' + f);
+            if (el) { el.textContent = ''; el.classList.add('hidden'); }
+        });
+
+        // Validation front
+        let hasError = false;
+        if (!montant || parseFloat(montant) < 500) {
+            const el = document.getElementById('error-montant');
+            el.textContent = 'Montant invalide (minimum 500 FCFA)';
+            el.classList.remove('hidden');
+            hasError = true;
+        }
+        if (!mode) {
+            const el = document.getElementById('error-mode');
+            el.textContent = 'Veuillez choisir un mode de paiement';
+            el.classList.remove('hidden');
+            hasError = true;
+        }
+        if (!reference.trim()) {
+            const el = document.getElementById('error-reference');
+            el.textContent = 'Veuillez renseigner une référence de paiement';
+            el.classList.remove('hidden');
+            hasError = true;
+        }
+        if (hasError) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Envoi en cours…';
+
+        try {
+            const response = await fetch('/api/profil/retrait/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    montant:           parseFloat(montant),
+                    mode_paiement:     mode,
+                    reference_paiement: reference
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showToast('Demande de retrait envoyée avec succès !');
+                // Réinitialiser le formulaire
+                document.getElementById('retrait-montant').value = '';
+                document.getElementById('retrait-mode').value = '';
+                document.getElementById('retrait-reference').value = '';
+                document.getElementById('retrait-confirm').checked = false;
+                btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Soumettre le retrait`;
+                // bouton reste désactivé (confirmation décochée)
+            } else {
+                if (result.errors) {
+                    Object.entries(result.errors).forEach(([field, msg]) => {
+                        const el = document.getElementById('error-' + field);
+                        if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+                    });
+                }
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Soumettre le retrait`;
+                showToast(result.message || 'Erreur lors de la demande', true);
+            }
+
+        } catch (err) {
+            console.error('Erreur réseau :', err);
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg> Soumettre le retrait`;
+            showToast('Erreur réseau — réessayez', true);
+        }
+    }
+</script>
+
+          {% include 'includes/modal_photo_profil.html' %}
+</body>
+</html>

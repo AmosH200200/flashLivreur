@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %} Contacts - Flash Livreur {% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contactez-nous — FlashLivreur</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #ffffff; color: #1a1a1a; }
+    .page { max-width: 680px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; background: #f5f5f0; border: 0.5px solid #e0ded8; border-radius: 999px; padding: 4px 14px; font-size: 12px; color: #5f5e5a; margin-bottom: 1.5rem; }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; }
+    h1 { font-size: 32px; font-weight: 500; color: #1a1a1a; margin-bottom: 0.5rem; }
+    .subtitle { font-size: 15px; color: #5f5e5a; margin-bottom: 2.5rem; }
+    .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #888780; margin-bottom: 0.75rem; }
+    .contact-card { display: flex; align-items: center; gap: 14px; padding: 1rem 1.25rem; background: #ffffff; border: 0.5px solid #e0ded8; border-radius: 12px; text-decoration: none; color: #1a1a1a; transition: border-color 0.15s, background 0.15s; cursor: pointer; margin-bottom: 0.625rem; }
+    .contact-card:hover { border-color: #b4b2a9; background: #f5f5f0; }
+    .icon-wrap { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-text { flex: 1; }
+    .card-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+    .card-handle { font-size: 13px; color: #5f5e5a; margin-top: 1px; }
+    .arrow { font-size: 14px; color: #888780; transition: transform 0.15s; }
+    .contact-card:hover .arrow { transform: translateX(3px); }
+    .divider { border: none; border-top: 0.5px solid #e0ded8; margin: 1.75rem 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+    @media (max-width: 480px) { .grid { grid-template-columns: 1fr; } }
+    .footer { font-size: 12px; color: #888780; text-align: center; margin-top: 2.5rem; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="badge"><span class="badge-dot"></span>Disponible 7j/7</div>
+  <h1>Contactez-nous</h1>
+  <p class="subtitle">Retrouvez FlashLivreur sur nos réseaux ou écrivez-nous directement.</p>
+
+  <p class="section-label">Email</p>
+  <a href="mailto:contact@flashlivreur.com" class="contact-card">
+    <div class="icon-wrap" style="background:#F1EFE8;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5F5E5A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+    </div>
+    <div class="card-text">
+      <div class="card-name">Email</div>
+      <div class="card-handle">contact@flashlivreur.com</div>
+    </div>
+    <span class="arrow">→</span>
+  </a>
+
+  <a href="https://wa.me/22912345678" target="_blank" class="contact-card">
+    <div class="icon-wrap" style="background:#EAF3DE;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#3B6D11"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    </div>
+    <div class="card-text">
+      <div class="card-name">WhatsApp</div>
+      <div class="card-handle">+229 12 34 56 78</div>
+    </div>
+    <span class="arrow">→</span>
+  </a>
+
+  <hr class="divider">
+  <p class="section-label">Réseaux sociaux</p>
+
+  <div class="grid">
+    <a href="https://facebook.com" target="_blank" class="contact-card">
+      <div class="icon-wrap" style="background:#E6F1FB;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#185FA5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-name">Facebook</div>
+        <div class="card-handle">Suivez-nous</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="https://instagram.com" target="_blank" class="contact-card">
+      <div class="icon-wrap" style="background:#FBEAF0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#993556" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="#993556" stroke="none"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-name">Instagram</div>
+        <div class="card-handle">Nos stories</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="https://twitter.com" target="_blank" class="contact-card">
+      <div class="icon-wrap" style="background:#F1EFE8;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#444441"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-name">X (Twitter)</div>
+        <div class="card-handle">Actualités</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="https://linkedin.com" target="_blank" class="contact-card">
+      <div class="icon-wrap" style="background:#E6F1FB;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#185FA5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-name">LinkedIn</div>
+        <div class="card-handle">Professionnel</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="https://tiktok.com" target="_blank" class="contact-card">
+      <div class="icon-wrap" style="background:#F1EFE8;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#2C2C2A"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.27 8.27 0 0 0 4.84 1.56V6.81a4.85 4.85 0 0 1-1.07-.12z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-name">TikTok</div>
+        <div class="card-handle">Vidéos</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Disponible 7j/7 pour vos livraisons rapides
+  </div>
+
+</div>
+
+</body>
+</html>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+    <!-- Navbar -->
+    <nav class="bg-[#0a1929] text-white fixed w-full top-0 z-50 shadow-lg">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center space-x-4">
+                <button id="menuToggle" class="lg:hidden text-2xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="text-2xl font-bold">FlashLivreur</h1>
+            </div>
+
+            <div class="flex items-center space-x-6">
+                <!-- Recherche -->
+                <div class="hidden md:flex items-center bg-[#1a2942] rounded-lg px-4 py-2">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="Rechercher..." class="bg-transparent outline-none text-white w-64">
+                </div>
+
+                <!-- Notifications -->
+                <div class="relative">
+                    <button class="relative hover:bg-[#1a2942] p-2 rounded-lg transition">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 bg-red-500 text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                    </button>
+                </div>
+
+                <!-- Messages -->
+                <button class="hover:bg-[#1a2942] p-2 rounded-lg transition">
+                    <i class="fas fa-envelope text-xl"></i>
+                </button>
+
+                <!-- Profil -->
+                <div class="flex items-center space-x-3">
+                    {% if user.photo %}
+                    <img src="{{ user.photo.url }}" alt="{{ user.first_name }} {{ user.last_name }}" class="w-10 h-10 rounded-full object-cover">
+                    {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&background=3b82f6&color=fff" alt="{{ user.first_name }} {{ user.last_name }}" class="w-10 h-10 rounded-full">
+                    {% endif %}
+                    <div class="hidden lg:block">
+                        <p class="font-semibold">Super Admin</p>
+                        <p class="text-xs text-gray-400">{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
