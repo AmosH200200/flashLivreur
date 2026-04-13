@@ -89,14 +89,101 @@
                     
                 </div>
                 
-                <!-- Mobile menu button -->
-                <div class="md:hidden ">
-                    <button id="mobile-menu-btn" class="text-gray-700 hover:text-orange-primary">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
+                
+<!-- Mobile menu button -->
+<div class="md:hidden">
+    <button id="mobile-menu-btn" class="text-gray-700 hover:text-orange-primary">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+</div>
+
+<!-- Mobile Menu Drawer -->
+<div id="mobile-menu"
+    class="hidden md:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+    onclick="closeMobileMenu(event)">
+
+    <div class="absolute right-0 top-0 h-full w-72 bg-white shadow-2xl flex flex-col"
+        onclick="event.stopPropagation()">
+
+        <!-- Header du drawer -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <span class="font-bold text-gray-800 text-lg">Menu</span>
+            <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-gray-700 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Contenu du menu -->
+        <div class="flex flex-col flex-1 px-4 py-6 gap-2 overflow-y-auto">
+
+            <!-- Liens de navigation -->
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-primary font-medium transition">
+                Accueil
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-primary font-medium transition">
+                Services
+            </a>
+            <!-- Ajoutez vos autres liens ici -->
+
+            <div class="border-t border-gray-100 my-2"></div>
+
+            {% if user.is_authenticated and user.user_type == 'client' %}
+
+                <!-- Section Mon Espace -->
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 mb-1">Mon espace</p>
+
+                <a href="{% url 'profil_client' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    Profil
+                </a>
+
+                <a href="{% url 'historique_client' %}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="1.6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14"/>
+                        <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                        <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                        <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
+                    Mes courses
+                </a>
+
+                <a href="{% url 'user_logout' %}"
+                    onclick="return confirm('Voulez-vous vraiment vous déconnecter ?')"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition mt-auto">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    </svg>
+                    Déconnexion
+                </a>
+
+            {% else %}
+
+                <!-- Boutons connexion / inscription -->
+                <a href="{% url 'client_login' %}" class="block">
+                    <button class="w-full bg-orange-primary text-white py-3 rounded-full font-semibold hover:bg-orange-dark transition shadow-md">
+                        Se connecter
                     </button>
-                </div>
+                </a>
+                <a href="{% url 'client_register' %}" class="block">
+                    <button class="w-full bg-black text-white py-3 rounded-full font-semibold transition shadow-md hover:bg-gray-800">
+                        S'inscrire
+                    </button>
+                </a>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+
             </div>
         </div>
         
@@ -122,17 +209,18 @@
 
         <!-- JavaScript for mobile menu -->
     <script>
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-        
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
-                mobileMenu.classList.add('hidden');
-            }
-        });
-    </script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+        document.body.classList.toggle('overflow-hidden');
+    }
+
+    function closeMobileMenu(event) {
+        // Ferme uniquement si on clique sur l'overlay (fond sombre)
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+</script>
