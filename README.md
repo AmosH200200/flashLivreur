@@ -78,24 +78,6 @@ L'application sera accessible sur : [http://127.0.0.1:8000](http://127.0.0.1:800
 
 ---
 
-## 📁 Structure du projet
-
-```
-flashlivreur/
-├── manage.py
-├── requirements.txt
-├── .env.example
-├── flashlivreur/        # Configuration principale Django
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-├── accounts/            # Gestion des utilisateurs (clients, livreurs)
-├── courses/             # Logique des courses et livraisons
-├── static/              # Fichiers CSS, JS
-└── templates/           # Templates HTML
-```
-
----
 
 ## 🧰 Stack technique
 
@@ -104,7 +86,6 @@ flashlivreur/
 | Python / Django | Backend & logique métier |
 | JavaScript | Interactions frontend & temps réel |
 | HTML / CSS | Interface utilisateur |
-| Django Channels *(recommandé)* | Suivi en temps réel (WebSocket) |
 
 ---
 
